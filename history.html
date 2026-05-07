@@ -303,7 +303,7 @@
   <body>
     <div class="container">
       <header class="top">
-        <div class="eyebrow">PROJECT LOG · v0.1.2</div>
+        <div class="eyebrow">PROJECT LOG · v0.2.0</div>
         <h1>PWFinder — 4분할 파일 탐색기 작업 히스토리</h1>
         <div class="subtitle">
           우분투 기본 탐색기를 대체할, 화면을 최대 4분할로 나누고 각 패널에 색상·이름·git 상태·터미널·트리 사이드바를 둔 데스크톱 탐색기. <b>Tauri 2 + React 18</b> 기반으로 처음부터 빌드, GitHub 게시, APT 자동 배포까지 완료.
@@ -312,7 +312,7 @@
           <div><b>날짜</b> 2026-05-07 (단일 세션)</div>
           <div><b>저장소</b> <a href="https://github.com/PinkWink/finder-pw">github.com/PinkWink/finder-pw</a></div>
           <div><b>APT</b> <a href="https://pinkwink.github.io/finder-pw/">pinkwink.github.io/finder-pw</a></div>
-          <div><b>최신</b> v0.1.2</div>
+          <div><b>최신</b> v0.2.0 <span class="pill green">macOS</span></div>
         </div>
       </header>
 
@@ -325,9 +325,9 @@
 
       <h2 class="section">단계 요약</h2>
       <div class="summary-grid">
-        <div class="stat"><div class="label">총 사용자 지시</div><div class="value">~38</div></div>
-        <div class="stat"><div class="label">릴리스</div><div class="value">3 <span class="pill green">v0.1.0–0.1.2</span></div></div>
-        <div class="stat"><div class="label">최종 .deb 크기</div><div class="value">3.04 MB</div></div>
+        <div class="stat"><div class="label">총 사용자 지시</div><div class="value">~40</div></div>
+        <div class="stat"><div class="label">릴리스</div><div class="value">4 <span class="pill green">v0.1.0–0.2.0</span></div></div>
+        <div class="stat"><div class="label">지원 플랫폼</div><div class="value">2 <span class="pill">Linux + macOS</span></div></div>
         <div class="stat"><div class="label">백엔드 명령</div><div class="value">10 <span class="pill">Rust</span></div></div>
         <div class="stat"><div class="label">React 컴포넌트</div><div class="value">6</div></div>
         <div class="stat"><div class="label">레이아웃</div><div class="value">6 + Tree</div></div>
@@ -698,9 +698,44 @@
 
         <div class="turn t-user minor">
           <div class="timestamp">2026-05-07 17:00 KST · 사용자</div>
-          <div class="turn-title">history.html 갱신 + 푸시 (현재)</div>
+          <div class="turn-title">history.html 갱신 + 푸시 (1차)</div>
           <div class="quote-box">history.html 잘 갱신해. 그리고 git push까지</div>
           <div class="card"><h4>대응</h4><p>본 문서를 v0.1.2까지의 전체 흐름으로 재구성. 단계 표지(A–G)로 구획화. 사용자 지시 원문 인용 + 절대시각 보존. 갱신 후 main에 커밋·푸시.</p></div>
+        </div>
+
+      </div>
+
+      <h3 class="phase">H. macOS 포팅 + v0.2.0</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 17:30 KST · 사용자</div>
+          <div class="turn-title">macOS 버전 추가</div>
+          <div class="quote-box">아까 물었던 맥 용 버전도 만들자.</div>
+          <div class="card"><h4>지시 이해</h4>
+            <p>이전 "맥은 일단 나중에" → 지금 진행. PWFinder로 이미 리네임된 상태라 이름 충돌 없음. 빌드·배포 인프라까지 함께 셋업.</p>
+          </div>
+          <div class="card"><h4>대응 — 4개 영역 동시 변경</h4>
+            <ul>
+              <li><b>Rust 분기</b> (3개 명령): <code class="inline">#[cfg(target_os = "macos")]</code>로 분기. <code class="inline">open_file</code>(<code class="inline">xdg-open</code>↔<code class="inline">open</code>), <code class="inline">delete_path</code>(<code class="inline">gio trash</code>↔<code class="inline">osascript "tell Finder to delete"</code>), <code class="inline">open_terminal</code>(8-emulator chain↔<code class="inline">open -a Terminal</code>)</li>
+              <li><b>tauri.conf.json</b>: targets에 <code class="inline">dmg</code>, <code class="inline">app</code> 추가, macOS 섹션(<code class="inline">minimumSystemVersion 10.15</code>)</li>
+              <li><b>release.yml matrix</b>: <code class="inline">ubuntu-22.04</code> + <code class="inline">macos-latest</code> 병렬, macOS 단계만 <code class="inline">sips</code>+<code class="inline">iconutil</code>로 .icns 즉석 생성, APT repo 갱신은 Linux 잡에서만. 같은 GH Release에 양쪽 자산 누적 첨부.</li>
+              <li><b>README</b>: 맥 설치 섹션 + Gatekeeper 우회 안내 + 로드맵 갱신 (macOS 체크 ✓, 코드사이닝/유니버설/Homebrew 추가)</li>
+            </ul>
+            <p class="note">
+              결정: 1) 첫 빌드는 native arm64 (universal은 후속 — 디버그 부담 줄임). 2) 코드사이닝은 보류 (Apple Developer 계정 필요) — 사용자는 첫 실행 시 우클릭→열기. 3) 버전을 0.1.2 → <b>0.2.0</b>으로 minor bump (첫 크로스플랫폼 릴리스 기념).
+            </p>
+          </div>
+          <div class="card"><h4>검증</h4>
+            <p>로컬에서 <code class="inline">cargo check</code> Linux 빌드 무결성 확인 (0.4초). Tauri 컴파일 통과. 태그 <code class="inline">v0.2.0</code> 푸시 → matrix 워크플로우 가동.</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 17:45 KST · 사용자</div>
+          <div class="turn-title">history.html 갱신 + 모니터링 (현재)</div>
+          <div class="quote-box">history.html 정리하고, gh run watch 로 모니터링 해줘</div>
+          <div class="card"><h4>대응</h4><p>본 섹션(H) 추가, 단계 요약 통계 갱신, 릴리스 비교 표 v0.2.0 행 추가. 푸시 직후 <code class="inline">gh run watch</code> 백그라운드 실행 → 매트릭스 양쪽 잡(linux + macos) 완료 시 자동 알림.</p></div>
         </div>
 
       </div>
@@ -760,10 +795,11 @@ sudo apt install pw-finder</pre>
       <div class="card">
         <h4>릴리스 비교</h4>
         <table class="compare">
-          <tr><th>버전</th><th>날짜</th><th>주요 변경</th><th>빌드 시간</th><th>.deb</th></tr>
-          <tr><td>v0.1.0</td><td>15:34</td><td>최초 릴리스 (Finder)</td><td>5m 54s</td><td>3.0 MB</td></tr>
-          <tr><td>v0.1.1</td><td>16:00</td><td>deb Depends 중복 제거</td><td>5m 56s</td><td>3.0 MB</td></tr>
-          <tr><td>v0.1.2</td><td>17:00</td><td>PWFinder 리네임 + Tree 사이드바 + Active pane + History + Window state 복원</td><td>5m 5s</td><td><b>3.04 MB</b></td></tr>
+          <tr><th>버전</th><th>날짜</th><th>주요 변경</th><th>플랫폼</th><th>.deb</th></tr>
+          <tr><td>v0.1.0</td><td>15:34</td><td>최초 릴리스 (Finder)</td><td>Linux</td><td>3.0 MB</td></tr>
+          <tr><td>v0.1.1</td><td>16:00</td><td>deb Depends 중복 제거</td><td>Linux</td><td>3.0 MB</td></tr>
+          <tr><td>v0.1.2</td><td>17:00</td><td>PWFinder 리네임 + Tree 사이드바 + Active pane + History + Window state 복원</td><td>Linux</td><td>3.04 MB</td></tr>
+          <tr><td><b>v0.2.0</b></td><td>17:45</td><td>macOS 포팅 (.dmg arm64), Rust 분기 컴파일, matrix CI</td><td><b>Linux + macOS</b></td><td>(빌드 중)</td></tr>
         </table>
       </div>
 
@@ -783,14 +819,17 @@ sudo apt install pw-finder</pre>
           <ul>
             <li>이동(잘라내기) — Shift+드래그로 move</li>
             <li>인-패널 검색 / 필터</li>
-            <li>외부 앱(Nautilus 등)에서 파일 드롭</li>
+            <li>외부 앱(Nautilus / Finder)에서 파일 드롭</li>
             <li>git 상태 갱신 주기 설정</li>
           </ul>
         </div>
         <div class="card">
           <h4>플랫폼</h4>
           <ul>
-            <li>macOS 포팅 (xdg-open / gio trash / terminal cfg 분기, .dmg, Homebrew cask)</li>
+            <li>✅ macOS 포팅 (v0.2.0)</li>
+            <li>macOS 코드사이닝 + 노터라이제이션 (Gatekeeper 자유 통과)</li>
+            <li>Universal 바이너리 (Intel + Apple Silicon)</li>
+            <li>Homebrew tap (<code class="inline">brew install --cask pwfinder</code>)</li>
             <li>Windows 빌드 (.msi)</li>
           </ul>
         </div>
