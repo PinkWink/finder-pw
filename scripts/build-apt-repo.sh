@@ -120,7 +120,7 @@ cat > "$REPO_DIR/index.html" <<'EOF'
 <pre><code>curl -fsSL https://__PAGE_URL__/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
 echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://__PAGE_URL__ stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install pwfinder</code></pre>
+sudo apt install pw-finder</code></pre>
 <p>See the <a href="https://github.com/__GH_REPO__">GitHub repo</a> for source.</p>
 EOF
 

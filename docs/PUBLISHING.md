@@ -91,7 +91,7 @@ GitHub Actions will:
 curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
 echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://pinkwink.github.io/finder-pw stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install pwfinder
+sudo apt install pw-finder
 ```
 
 After this, `sudo apt upgrade` will pick up future releases automatically.
@@ -121,7 +121,7 @@ python3 -m http.server 8080
 curl -fsSL http://localhost:8080/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
 echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] http://localhost:8080 stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install pwfinder
+sudo apt install pw-finder
 ```
 
 ## Troubleshooting

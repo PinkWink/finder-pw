@@ -35,7 +35,7 @@ One-time setup. Registers PWFinder as an apt source so `sudo apt upgrade` keeps 
 curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
 echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://pinkwink.github.io/finder-pw stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install pwfinder
+sudo apt install pw-finder
 ```
 
 The app will appear in the application launcher (Dash / Activities) as **PWFinder**.
