@@ -64,7 +64,11 @@ fn get_parent_dir(path: String) -> Option<String> {
 
 #[tauri::command]
 fn open_file(path: String) -> Result<(), String> {
-    Command::new("xdg-open")
+    #[cfg(target_os = "macos")]
+    let opener = "open";
+    #[cfg(not(target_os = "macos"))]
+    let opener = "xdg-open";
+    Command::new(opener)
         .arg(&path)
         .spawn()
         .map_err(|e| e.to_string())?;
@@ -125,14 +129,33 @@ fn rename_path(path: String, new_name: String) -> Result<String, String> {
     Ok(new_path.to_string_lossy().to_string())
 }
 
-#[tauri::command]
-fn delete_path(path: String) -> Result<(), String> {
-    let trashed = Command::new("gio")
-        .args(["trash", &path])
+#[cfg(target_os = "macos")]
+fn try_trash(path: &str) -> bool {
+    let escaped = path.replace('\\', "\\\\").replace('"', "\\\"");
+    let script = format!(
+        r#"tell application "Finder" to delete POSIX file "{}""#,
+        escaped
+    );
+    Command::new("osascript")
+        .arg("-e")
+        .arg(script)
         .status()
         .map(|s| s.success())
-        .unwrap_or(false);
-    if trashed {
+        .unwrap_or(false)
+}
+
+#[cfg(not(target_os = "macos"))]
+fn try_trash(path: &str) -> bool {
+    Command::new("gio")
+        .args(["trash", path])
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
+
+#[tauri::command]
+fn delete_path(path: String) -> Result<(), String> {
+    if try_trash(&path) {
         return Ok(());
     }
     let p = PathBuf::from(&path);
@@ -244,30 +267,41 @@ fn git_status(path: String) -> Result<Option<GitStatus>, String> {
 
 #[tauri::command]
 fn open_terminal(path: String) -> Result<(), String> {
-    let candidates: &[(&str, &str)] = &[
-        ("x-terminal-emulator", "--working-directory"),
-        ("gnome-terminal", "--working-directory"),
-        ("konsole", "--workdir"),
-        ("xfce4-terminal", "--working-directory"),
-        ("mate-terminal", "--working-directory"),
-        ("kitty", "--directory"),
-        ("alacritty", "--working-directory"),
-    ];
-    for (bin, flag) in candidates {
-        if Command::new(bin)
-            .arg(format!("{}={}", flag, path))
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .args(["-a", "Terminal", &path])
             .spawn()
-            .is_ok()
-        {
-            return Ok(());
-        }
+            .map_err(|e| format!("Failed to open Terminal.app: {}", e))?;
+        return Ok(());
     }
-    Command::new("xterm")
-        .arg("-e")
-        .arg(format!("cd {} && bash", path))
-        .spawn()
-        .map_err(|e| format!("No terminal emulator found: {}", e))?;
-    Ok(())
+    #[cfg(not(target_os = "macos"))]
+    {
+        let candidates: &[(&str, &str)] = &[
+            ("x-terminal-emulator", "--working-directory"),
+            ("gnome-terminal", "--working-directory"),
+            ("konsole", "--workdir"),
+            ("xfce4-terminal", "--working-directory"),
+            ("mate-terminal", "--working-directory"),
+            ("kitty", "--directory"),
+            ("alacritty", "--working-directory"),
+        ];
+        for (bin, flag) in candidates {
+            if Command::new(bin)
+                .arg(format!("{}={}", flag, path))
+                .spawn()
+                .is_ok()
+            {
+                return Ok(());
+            }
+        }
+        Command::new("xterm")
+            .arg("-e")
+            .arg(format!("cd {} && bash", path))
+            .spawn()
+            .map_err(|e| format!("No terminal emulator found: {}", e))?;
+        Ok(())
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]

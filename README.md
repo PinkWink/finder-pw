@@ -1,10 +1,8 @@
 # PWFinder
 
-A 4-split file explorer for Linux desktops. Each pane is independent — navigate, color-tag, label, drag-and-drop copy, and check git status. Includes a left-side folder tree and per-pane history. Designed to make multi-folder workflows actually pleasant.
+A 4-split file explorer for **Linux and macOS** desktops. Each pane is independent — navigate, color-tag, label, drag-and-drop copy, and check git status. Includes a left-side folder tree and per-pane history. Designed to make multi-folder workflows actually pleasant.
 
-> Built with Rust + Tauri 2 + React. Single native binary, ~10–30 MB RAM, packaged as `.deb` / AppImage.
->
-> Named PWFinder so it doesn't collide with macOS Finder when ported.
+> Built with Rust + Tauri 2 + React. Single native binary, ~10–30 MB RAM. Packaged as `.deb` / AppImage on Linux and `.dmg` on macOS.
 
 ---
 
@@ -27,7 +25,7 @@ A 4-split file explorer for Linux desktops. Each pane is independent — navigat
 
 ## Install
 
-### Option A — `apt install` (recommended, Ubuntu/Debian)
+### Linux — `apt install` (Ubuntu/Debian, recommended)
 
 One-time setup. Registers PWFinder as an apt source so `sudo apt upgrade` keeps it updated automatically.
 
@@ -42,16 +40,24 @@ The app will appear in the application launcher (Dash / Activities) as **PWFinde
 
 > Maintainer: see [`docs/PUBLISHING.md`](docs/PUBLISHING.md) for the one-time GPG/Pages setup that powers this.
 
-### Option B — pre-built `.deb` (no apt source)
+### Linux — pre-built `.deb` / AppImage (no apt source)
 
-Download `PWFinder_<version>_amd64.deb` from the [Releases](../../releases) page and install:
+Download `PWFinder_<version>_amd64.deb` (or `.AppImage`) from the [Releases](../../releases) page:
 
 ```bash
 sudo dpkg -i PWFinder_*.deb
 sudo apt-get install -f      # only if dpkg complains about missing deps
 ```
 
-### Option C — build from source
+### macOS — `.dmg` (Apple Silicon)
+
+Download `PWFinder_<version>_aarch64.dmg` from the [Releases](../../releases) page, open the disk image, drag **PWFinder.app** to `/Applications`.
+
+> ⚠️ **First open**: Because we don't have an Apple Developer code-signing cert yet, macOS Gatekeeper will refuse to launch on double-click. The first time, **right-click PWFinder in Applications → Open → Open** in the dialog. After this once, it launches normally.
+>
+> Intel-Mac users can still build from source (Option below) — pre-built binary is currently arm64 only.
+
+### Build from source (any platform)
 
 #### Prerequisites
 
@@ -70,7 +76,7 @@ sudo apt-get install -f      # only if dpkg complains about missing deps
   nvm install --lts
   ```
 
-- **Tauri Linux dependencies** (Ubuntu 22.04+):
+- **Tauri Linux dependencies** (Ubuntu 22.04+, only on Linux):
 
   ```bash
   sudo apt install \
@@ -83,6 +89,8 @@ sudo apt-get install -f      # only if dpkg complains about missing deps
     pkg-config
   ```
 
+- **macOS dependencies**: just Xcode Command Line Tools — `xcode-select --install`
+
 #### Build
 
 ```bash
@@ -92,16 +100,21 @@ npm install
 npm run tauri build
 ```
 
-The `.deb` and AppImage are produced at:
+Artifacts are produced at:
 
 ```
+# Linux
 src-tauri/target/release/bundle/deb/PWFinder_*.deb
 src-tauri/target/release/bundle/appimage/PWFinder_*.AppImage
+
+# macOS
+src-tauri/target/release/bundle/dmg/PWFinder_*.dmg
+src-tauri/target/release/bundle/macos/PWFinder.app
 ```
 
 > First build is slow (5–10 min — Tauri compiles ~280 crates). Subsequent builds are seconds.
 
-### Option D — manual desktop entry (no root, after building)
+### Linux — manual desktop entry (no root, after building)
 
 If you'd rather not `dpkg -i`, after `npm run tauri build`:
 
@@ -213,15 +226,19 @@ finder-pw/
 
 ## Roadmap
 
+- [x] macOS port (`.dmg`, arm64) — v0.2.0
+- [ ] macOS code signing + notarization (smooth first-open)
+- [ ] Universal binary (Intel + Apple Silicon) for macOS
+- [ ] Homebrew tap for `brew install --cask pwfinder`
 - [ ] Drag splitter between panes for free resizing
 - [ ] Tabs inside each pane
 - [ ] In-pane file search / filter
 - [ ] Cut / paste (move) in addition to copy
 - [ ] Bookmarks sidebar
-- [ ] External drag-and-drop (drop from Nautilus / desktop)
+- [ ] External drag-and-drop (drop from Nautilus / Finder / desktop)
 - [ ] Configurable git refresh interval
 - [ ] Keyboard shortcuts (Ctrl+1…6 for layouts)
-- [ ] macOS port (`.dmg`, Homebrew tap)
+- [ ] Windows port (`.msi`)
 
 ---
 
