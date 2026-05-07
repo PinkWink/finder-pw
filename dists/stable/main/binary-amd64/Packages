@@ -1,30 +1,15 @@
-Package: finder
-Version: 0.1.0
+Package: pw-finder
+Version: 0.1.2
 Architecture: amd64
-Maintainer: pw
-Installed-Size: 9616
-Depends: libwebkit2gtk-4.1-0, libgtk-3-0, libwebkit2gtk-4.1-0, libgtk-3-0
-Filename: pool/main/f/finder/Finder_0.1.0_amd64.deb
-Size: 3111676
-MD5sum: b08be7bbc5795e4e0117238bb605748c
-SHA1: b57972801ea2193827d18517922a76260122ead7
-SHA256: 06b6462060dccf0ab36d07cdf764c0c9ea4d3a345eada54aaa929b0cbcad8db1
-Priority: optional
-Description: 4-split file explorer with per-pane color, name, hidden toggle, git status, terminal, and drag-and-drop copy
- Finder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.
-
-Package: finder
-Version: 0.1.1
-Architecture: amd64
-Maintainer: pw
-Installed-Size: 9617
+Maintainer: PinkWink
+Installed-Size: 9838
 Depends: libwebkit2gtk-4.1-0, libgtk-3-0
-Filename: pool/main/f/finder/Finder_0.1.1_amd64.deb
-Size: 3110560
-MD5sum: 051c5666379270afe0f4533adacff2ce
-SHA1: 907acfdffdd2d82ef9d4f7b7d91249aa02193759
-SHA256: 7bfb1cd209594f06baaff137327f334b07d495cb5b42d4eef77d20ddf67776a0
+Filename: pool/main/p/pwfinder/PWFinder_0.1.2_amd64.deb
+Size: 3184418
+MD5sum: 7691821786e77e9ad834bb9358b3e23c
+SHA1: a72d3b0eb02f7cb2e8e53a6aefd3e466a2e7a929
+SHA256: 36c5bb6ea379b2084a7a4f9251afc19b44a8f4311a460031e56953d905812734
 Priority: optional
 Description: 4-split file explorer with per-pane color, name, hidden toggle, git status, terminal, and drag-and-drop copy
- Finder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.
+ PWFinder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.
 

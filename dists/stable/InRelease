@@ -1,34 +1,34 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-Origin: Finder
-Label: Finder
+Origin: PWFinder
+Label: PWFinder
 Suite: stable
 Codename: stable
 Version: 1.0
 Architectures: amd64
 Components: main
-Description: Finder file explorer apt repository
-Date: Thu, 07 May 2026 07:48:19 +0000
+Description: PWFinder file explorer apt repository
+Date: Thu, 07 May 2026 08:16:10 +0000
 MD5Sum:
- f836ec74403db73630ff8cad1f77171b             1651 main/binary-amd64/Packages
- 44d9be0ec45316d7ba7fb7950229e77d              665 main/binary-amd64/Packages.gz
+ 2c2da168fa5b3f8ace674a7149c5f202              824 main/binary-amd64/Packages
+ 7ba713292d9504caacb477e43aa9da71              544 main/binary-amd64/Packages.gz
 SHA256:
- dc6e1e54dfa9de4d0c4bd01a535f09bd3026319ea703b751a398553d5bd5d0d8             1651 main/binary-amd64/Packages
- 15d33df4605b7aba9de93cb2decd89c40644838d45a4faf03d286b18648bc1dd              665 main/binary-amd64/Packages.gz
+ cef0ebc51595a66c098b34ae3f39d6c49c6dc7e4bf080413df3d83f8151106b8              824 main/binary-amd64/Packages
+ edf5298dedbe981b94c8da39b7f3cd1e6cdafef77d28fc36b2a01c923bc72b97              544 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn8Q8MACgkQNBFjd6+C
-K0gTOQ//Y7zIQ2/VjUedqHe14LO1Q6rpi3H9/quG7wON8yx4bsIgENfJ5wRlt54F
-CJqKWAOO7o3hl6cbCsHhcQtJQ9Z6rnlvnsDbCkInHzKmHz/IiaQd3RQJNIhTJCKS
-rxdLLcsWmiB0gZacI27DVO3D8qTT9A8Ctrm564fDa7VicA3QqWgzluNgJJqwY8BE
-Oy7Edp9bsHwhqhn6m6Qx46ZxSaWq3SHsyD0CxwYWN4P2d2dUuhWKX6qBlsfpdKAu
-kgE5zw0robeeHfu7aFCZSI6ggcVfNGGDG0sUHqWkiLPIEoQmzSv250cPL2IETITh
-OSlPhBnG3pobHqzkXf8hQSkRJKmaF8z3iItchO+XY3vP86L1A9mwT4ucIyZUlaA6
-46Ik8ZNUpO/H3mCJlU5b9UU9J+p0Sd95D+KSVf/ztPMLcgEgtp6fhx3EUeE5W+cP
-vLqS/xjS/uSjN3Tm3tnrmvN8zC2n+11JtycjCU+cz9c9ta+QDv0B/pOa/nRHgfsu
-L50NhM4aA0pL//8OQBIepPWeNQcfx46So6aFWYat5hJM3oXIEtpmPlYQHN2Bg+5R
-8xj7sMWNLywbJwPIPCG8HTQw0fMLvLylYsI1tqXc64+PTo4KKeo5SZDu/GuXO37F
-U9aNpw0cIxr5wBvk05Jv4j9QJSLNNMHtwB9alkr+FJX2avZ7L2k=
-=bOhe
+iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn8SkoACgkQNBFjd6+C
+K0hDZBAAsU0mim2nBGUSuzg6Gg63B8soqtp+ugFP20OQ/U9I/RUN556NwOF6+jOO
+B5/FlmmX+S53RtYX9Fftiq9/kVISnP6PcXpj7XCzAxpqxu23vzy6De7pjPBkjo4R
+OtY9/kbWwFnzfLthqrMpdK+I9J9GJFTjcE7cGhunYxe6J60rKyLwhr9HI4/7kjyk
+1Cgi0Exi36KFf1FyqufJdeEA1mbnO0sswU3PUDKly4SGGx8RarnTQD43TvFxwBCa
+jRi7KyxIM6V+fXqJR37ySiRZ/NXFSDSex/UBcLSz1NYeNjX8dycorfEkmyPDFNtS
+g0z4Y1XGYG5OQAi4WHBIri21F1V3HxyuPySLUT2ZweCzxA3FGBw6FahPx9JTMiKQ
+fUMLNUMy0zNQgZ2Rr/9aZ8h/UMogK7Cn84Er0EtI/aJUUVxLPsqCGgGAFb74F0AT
+NXGVNR2aZskb+aLwYtaY93jNPGKSuZdoqB4zrxfTI7E4fYqqV8f+NGvOwNHPCSP0
+E6XbQvwJMcRnaDNdLsK6xlslTkhv8p4rYsrS7qTN1G26AMWoGg3rXNZxkhghCJIK
+gsRyT3Hht9YJFzuXODibOqNmfszD+xZP3UB5+thqVqtengcF5nfeFmzarkg5Dbiw
++LIpaYFMSwWNdiVhzbwLnrNSNyAkwI07aM7vrBXOme7KHglc8kI=
+=htn7
 -----END PGP SIGNATURE-----
