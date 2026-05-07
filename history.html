@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Finder 프로젝트 작업 히스토리</title>
+    <title>PWFinder 프로젝트 작업 히스토리</title>
     <style>
       :root {
         --bg: #fbfcfd;
@@ -31,7 +31,7 @@
         font-size: 15px;
       }
       .container {
-        max-width: 920px;
+        max-width: 980px;
         margin: 0 auto;
         padding: 48px 24px 80px;
       }
@@ -87,6 +87,14 @@
         vertical-align: -3px;
         margin-right: 10px;
       }
+      h3.phase {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 32px 0 12px;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
 
       .timeline {
         position: relative;
@@ -120,6 +128,13 @@
       }
       .turn.t-user::before {
         border-color: var(--user);
+      }
+      .turn.minor::before {
+        background: var(--user);
+        width: 8px;
+        height: 8px;
+        left: -25px;
+        top: 10px;
       }
       .turn .timestamp {
         font-size: 12px;
@@ -200,11 +215,12 @@
         font-weight: 600;
       }
 
-      .file-tree {
+      .file-tree,
+      pre.code {
         background: var(--soft);
         border: 1px solid var(--border);
         border-radius: 6px;
-        padding: 16px 20px;
+        padding: 12px 16px;
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 13px;
         color: #3a4150;
@@ -278,283 +294,518 @@
         font-style: italic;
         margin-top: 4px;
       }
+
+      a {
+        color: var(--accent);
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <header class="top">
-        <div class="eyebrow">PROJECT LOG</div>
-        <h1>Finder — 4분할 파일 탐색기 작업 히스토리</h1>
+        <div class="eyebrow">PROJECT LOG · v0.1.2</div>
+        <h1>PWFinder — 4분할 파일 탐색기 작업 히스토리</h1>
         <div class="subtitle">
-          우분투 기본 탐색기를 대체할, 화면을 최대 4분할로 나누고 각 패널에
-          색상·이름을 지정할 수 있는 데스크톱 탐색기 개발 기록
+          우분투 기본 탐색기를 대체할, 화면을 최대 4분할로 나누고 각 패널에 색상·이름·git 상태·터미널·트리 사이드바를 둔 데스크톱 탐색기. <b>Tauri 2 + React 18</b> 기반으로 처음부터 빌드, GitHub 게시, APT 자동 배포까지 완료.
         </div>
         <div class="meta">
-          <div><b>날짜</b> 2026-05-07</div>
-          <div><b>작업 디렉토리</b> /home/pw/apps_with_claude/finder</div>
-          <div><b>스택</b> Tauri 2 + React 18 + TypeScript</div>
+          <div><b>날짜</b> 2026-05-07 (단일 세션)</div>
+          <div><b>저장소</b> <a href="https://github.com/PinkWink/finder-pw">github.com/PinkWink/finder-pw</a></div>
+          <div><b>APT</b> <a href="https://pinkwink.github.io/finder-pw/">pinkwink.github.io/finder-pw</a></div>
+          <div><b>최신</b> v0.1.2</div>
         </div>
       </header>
 
       <h2 class="section">개요</h2>
       <div class="card">
         <p>
-          사용자는 우분투 기본 파일 매니저(Nautilus)의
-          <b>화면 분할 미지원</b>이라는 한계를 해결하기 위해, 최대 4개의
-          분할창을 가지고 각 분할창에 <b>색상과 이름을 부여</b>해 작업 효율을
-          높일 수 있는 탐색기 도구를 만들고자 했다. 기술 스택 비교 후
-          <b>Tauri + React</b> 기반으로 진행하기로 결정.
+          사용자(<b>PinkWink</b>)는 우분투 기본 파일 매니저(Nautilus)의 <b>화면 분할 미지원</b>이라는 한계를 해결하기 위해, 최대 4개의 분할창을 가지고 각 분할창에 색상·이름을 부여하고 git 상태·터미널 단축까지 통합된 탐색기 도구를 만들고자 했다. 단일 세션 내에서 <b>Rust·Tauri·React 셋업 → 기능 구현 → GitHub 게시 → 자체 APT 배포 → 두 차례 릴리스(v0.1.0 → v0.1.1 → v0.1.2)</b> 까지 진행됐다.
         </p>
       </div>
 
+      <h2 class="section">단계 요약</h2>
+      <div class="summary-grid">
+        <div class="stat"><div class="label">총 사용자 지시</div><div class="value">~38</div></div>
+        <div class="stat"><div class="label">릴리스</div><div class="value">3 <span class="pill green">v0.1.0–0.1.2</span></div></div>
+        <div class="stat"><div class="label">최종 .deb 크기</div><div class="value">3.04 MB</div></div>
+        <div class="stat"><div class="label">백엔드 명령</div><div class="value">10 <span class="pill">Rust</span></div></div>
+        <div class="stat"><div class="label">React 컴포넌트</div><div class="value">6</div></div>
+        <div class="stat"><div class="label">레이아웃</div><div class="value">6 + Tree</div></div>
+      </div>
+
       <h2 class="section">시간순 대화 기록</h2>
+
+      <h3 class="phase">A. 요구 도출 · 스택 결정</h3>
       <div class="timeline">
 
-        <!-- TURN 1 -->
         <div class="turn t-user">
           <div class="timestamp">2026-05-07 12:04 KST · 사용자</div>
-          <div class="turn-title">초기 요구사항 제시</div>
+          <div class="turn-title">초기 요구사항</div>
           <div class="quote-box">난 일종의 탐색기 같은걸 만들고 싶어. 그런데, 지금 기본 우분투의 탐색기는 마음에 안드는게, 화면 분할이 안되. 화면을 최대한 4개까지는 분할하고, 분할된 탐색기 각각에 색상이나 이름을 지정해서 작업의 효율을 높이고 싶어</div>
-
           <div class="card">
             <h4>지시 이해</h4>
             <ul>
-              <li><b>핵심 요구</b>: 우분투용 데스크톱 파일 탐색기를 신규 개발</li>
-              <li><b>차별 기능 1</b>: 화면을 최대 4개까지 분할해 동시에 여러 디렉토리를 보기</li>
-              <li><b>차별 기능 2</b>: 각 분할 패널에 색상과 별칭(이름) 부여 → 시각적으로 작업 컨텍스트 분리</li>
-              <li><b>목적</b>: 멀티태스킹 작업 효율 향상 (단순 보기가 아닌 실용 도구)</li>
-              <li><b>표면적 제약</b>: 우분투 환경, 기본 탐색기보다 빠르고 가벼우면 좋음 (명시되진 않았지만 추론)</li>
+              <li>핵심: 우분투용 데스크톱 탐색기 신규 개발</li>
+              <li>차별 1: 화면 최대 4분할로 동시에 여러 디렉토리 보기</li>
+              <li>차별 2: 분할 패널마다 색상·별칭 부여 → 시각적 컨텍스트 분리</li>
+              <li>목적: 멀티태스킹 작업 효율 향상 (단순 보기가 아닌 실용 도구)</li>
             </ul>
           </div>
-
-          <div class="card">
-            <h4>대응한 작업</h4>
-            <p>
-              결정에 필요한 정보가 부족하다고 판단해, 기술 스택 / 핵심 기능 /
-              분할 레이아웃 방식 3가지를 ASK(객관식 질의)로 사용자에게 확인 요청.
-              사용자는 "옵션을 더 명확히 듣고 싶다"는 의사를 표시.
-            </p>
-          </div>
+          <div class="card"><h4>대응</h4><p>기술 스택 / 핵심 기능 / 분할 레이아웃 3가지를 객관식으로 질의 → 사용자 추가 정보 요청.</p></div>
         </div>
 
-        <!-- TURN 2 -->
         <div class="turn t-user">
           <div class="timestamp">2026-05-07 12:18 KST · 사용자</div>
-          <div class="turn-title">기술 스택 장단점 비교 요청</div>
+          <div class="turn-title">기술 스택 비교 요청</div>
           <div class="quote-box">RUST 기반과 Python 기반을 볼때 장단점을 예상해줘</div>
-
-          <div class="card">
-            <h4>지시 이해</h4>
-            <ul>
-              <li>객관식 선택 전에 두 진영의 트레이드오프를 글로 듣고 싶다는 의도</li>
-              <li>대상은 <b>탐색기</b>라는 도구 특성에 맞는 비교 (성능, UI, 배포, 개발 속도)</li>
-              <li>사용자가 직접 판단할 수 있도록 단순 사실 나열이 아닌 추천 의견까지</li>
-            </ul>
-          </div>
-
-          <div class="card">
-            <h4>대응한 작업</h4>
-            <p>Rust 기반(Tauri)과 Python 기반(PyQt6/GTK4)을 다음 축으로 비교 정리:</p>
-            <table class="compare">
-              <thead>
-                <tr>
-                  <th>축</th>
-                  <th>Rust (Tauri)</th>
-                  <th>Python (PyQt6/GTK4)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>큰 디렉토리 성능</td>
-                  <td>매우 빠름 (네이티브)</td>
-                  <td>5만+ 시 버벅 가능</td>
-                </tr>
-                <tr>
-                  <td>메모리 사용량</td>
-                  <td>10–30MB</td>
-                  <td>100–200MB</td>
-                </tr>
-                <tr>
-                  <td>개발 속도</td>
-                  <td>러닝 커브 큼</td>
-                  <td>며칠 내 프로토타입</td>
-                </tr>
-                <tr>
-                  <td>UI 자유도</td>
-                  <td>웹 기술로 매우 높음</td>
-                  <td>QSplitter 등으로 빠름</td>
-                </tr>
-                <tr>
-                  <td>배포 단순성</td>
-                  <td>단일 바이너리 / .deb</td>
-                  <td>PyInstaller 30–80MB</td>
-                </tr>
-              </tbody>
-            </table>
-            <p style="margin-top: 8px;">
-              결론: 개인 도구면 <b>Python+PyQt6</b>, 완성도 있는 앱이면
-              <b>Tauri+React</b>를 추천한다고 답변.
-            </p>
+          <div class="card"><h4>대응</h4>
+            <p>5개 축(성능·메모리·개발속도·UI·배포)으로 Rust(Tauri) vs Python(PyQt6/GTK4) 비교 표 제시. "완성도 있는 앱이면 Tauri+React, 빠른 프로토타입이면 PyQt6" 추천.</p>
           </div>
         </div>
 
-        <!-- TURN 3 -->
         <div class="turn t-user">
           <div class="timestamp">2026-05-07 12:35 KST · 사용자</div>
-          <div class="turn-title">스택 결정 및 빌드 시작 / 히스토리 문서 요청</div>
+          <div class="turn-title">스택 결정 · history.html 요구</div>
           <div class="quote-box">Tauri + React 로가자. 만들기 시작해봐. 그리고 지금 나눈 이야기는 모두 history.html로 밝은톤 테마로 정리해줘. 나의 지시는 정확히 남기고, 내 지시를 이해한 정도를 정리하고, 작업과정과 성과, 결과를 잘 정리해줘. 내가 지시나 질문을 하는것은 시간별로 정리하고 날짜와 시간을 꼭 남겨</div>
-
-          <div class="card">
-            <h4>지시 이해</h4>
+          <div class="card"><h4>지시 이해</h4>
             <ul>
-              <li><b>지시 1</b>: Tauri + React 스택으로 프로젝트를 실제로 시작</li>
-              <li><b>지시 2</b>: <code class="inline">history.html</code> 파일을 밝은 테마로 작성</li>
-              <li><b>지시 3</b>: 사용자 지시는 <b>원문 그대로</b> 인용하며 보관</li>
-              <li><b>지시 4</b>: 각 지시에 대해 "내가 어떻게 이해했는가"를 명시</li>
-              <li><b>지시 5</b>: 작업 과정과 결과를 정리</li>
-              <li><b>지시 6</b>: 지시·질문을 시간순으로, 날짜와 시간 명시</li>
+              <li>스택 확정 → 즉시 골격 시작</li>
+              <li><code class="inline">history.html</code> 작성: 밝은 톤, 사용자 지시 원문 인용, 이해 정리, 작업·결과, 시간순+절대시각</li>
             </ul>
           </div>
+          <div class="card"><h4>대응</h4>
+            <p>17개 파일 골격 생성: package.json, vite.config, tsconfig×2, index.html, .gitignore, src-tauri의 Cargo.toml/build.rs/main.rs/lib.rs/tauri.conf.json/capabilities, src의 main.tsx/App.tsx/App.css/types.ts + components 4종(Toolbar, Pane, FileList, PaneSettings). 본 history.html v1 작성. 메모리에도 사용자 선호(밝은 톤·시간순) 저장.</p>
+          </div>
+        </div>
+      </div>
 
-          <div class="card">
-            <h4>대응한 작업</h4>
+      <h3 class="phase">B. 환경 셋업 · 첫 실행 (cargo / node 설치)</h3>
+      <div class="timeline">
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 12:42 KST · 사용자</div>
+          <div class="turn-title">rustup 설치 옵션 질문</div>
+          <div class="quote-box">[rustup 설치 메뉴 화면 붙여넣기] 여기서 뭘 선택해야하지?</div>
+          <div class="card"><h4>대응</h4><p><b>1번 (Proceed with standard installation)</b> 권장. 기본 stable 툴체인이 Tauri 표준에 맞음.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 12:55 KST · 사용자</div>
+          <div class="turn-title">nvm command not found</div>
+          <div class="quote-box">nvm install --lts → zsh: command not found: nvm  이렇게 에러가 뜨네</div>
+          <div class="card"><h4>대응</h4><p>설치 스크립트가 zshrc에 추가했지만 현재 셸에 반영 안 됨. <code class="inline">export NVM_DIR="$HOME/.nvm" &amp;&amp; \. "$NVM_DIR/nvm.sh"</code>로 즉시 로드.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 13:05 KST · 사용자</div>
+          <div class="turn-title">npm install ETIMEDOUT</div>
+          <div class="quote-box">npm error code ETIMEDOUT (...) Invalid response body while trying to fetch react-dom: read ETIMEDOUT</div>
+          <div class="card"><h4>대응</h4><p>네트워크 진단(ping, curl) → 정상. 일시적 패킷 끊김 추정. <code class="inline">--fetch-timeout=120000 --fetch-retries=5</code> 권장. 사용자 측에서 재시도 후 정상 설치.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 13:10 KST · 사용자</div>
+          <div class="turn-title">tauri dev: cargo not found</div>
+          <div class="quote-box">failed to run 'cargo metadata' command... No such file or directory</div>
+          <div class="card"><h4>대응</h4><p><code class="inline">source $HOME/.cargo/env</code>로 PATH 적용 안내.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 13:14 KST · 사용자</div>
+          <div class="turn-title">아이콘 missing 에러</div>
+          <div class="quote-box">error: proc macro panicked. failed to open icon /home/pw/apps_with_claude/finder/src-tauri/icons/icon.png</div>
+          <div class="card"><h4>대응</h4><p>Tauri의 <code class="inline">generate_context!()</code>가 윈도우 아이콘을 요구. Python <code class="inline">struct/zlib</code>로 512×512 단색 PNG 즉석 생성 → 첫 실행 성공.</p></div>
+        </div>
+      </div>
+
+      <h3 class="phase">C. 핵심 기능 추가</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 13:20 KST · 사용자</div>
+          <div class="turn-title">패널 간 드래그앤드롭 복사</div>
+          <div class="quote-box">서로의 윈도우로 마우스 드래그앤드랍으로 복사가 되도록 해줘</div>
+          <div class="card"><h4>대응</h4>
             <ul>
-              <li>작업 디렉토리 점검 → 비어있음 확인. <code class="inline">cargo</code>·<code class="inline">node</code> 부재 확인 (사용자 환경 변경 없이 진행)</li>
-              <li>Tauri 2 + React 18 + TypeScript + Vite 기반 프로젝트 골격을 모두 파일로 작성</li>
-              <li>Rust 백엔드: 디렉토리 목록, 홈 경로, 부모 경로, 파일 열기 4개 명령 구현</li>
-              <li>React 프론트: 6가지 레이아웃(1/좌우/상하/3-좌/3-상/4분할) 토글, 패널별 색상·이름·경로 설정 모달, 파일 리스트 더블클릭 활성화, localStorage 영속화</li>
-              <li>본 <code class="inline">history.html</code> 문서를 밝은 톤 테마로 작성</li>
+              <li>Rust: 재귀 복사 함수 + <code class="inline">copy_path</code> 명령. 충돌 시 <code class="inline">(copy 1)</code> 자동 부여. 자기 하위로의 복사는 거부.</li>
+              <li>React: 파일 행에 <code class="inline">draggable</code>, 패널에 <code class="inline">onDragOver/Drop</code>. 호버 시 "Drop to copy" 라벨, 완료 시 토스트.</li>
             </ul>
           </div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 13:25 KST · 사용자</div>
+          <div class="turn-title">ProggyCrossed 폰트 적용</div>
+          <div class="quote-box">앱의 폰트는 ProggyCrossed 폰트를 사용해줘</div>
+          <div class="card"><h4>대응</h4><p>시스템(<code class="inline">~/.local/share/fonts/</code>)에 이미 있는 ttf를 <code class="inline">public/fonts/</code>로 복사 → 번들. CSS <code class="inline">@font-face</code> 등록 + 변수 <code class="inline">--font-app</code>로 적용.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 13:30 KST · 사용자</div>
+          <div class="turn-title">폰트 크기 13px → 15px</div>
+          <div class="quote-box">폰트 크기는 13px로 해줘 ... 폰트크기를 15로 해줘</div>
+          <div class="card"><h4>대응</h4><p>모든 <code class="inline">font-size</code>를 13px → 이후 15px로 일괄 변경.</p></div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 13:36 KST · 사용자</div>
+          <div class="turn-title">가독성 문제 (스크린샷 첨부)</div>
+          <div class="quote-box">원래 폰트는 안그런데 앱에서는 가독성이 좀 떨어지는것 같아.</div>
+          <div class="card"><h4>대응</h4><p>제가 픽셀 폰트라 가정하고 <code class="inline">-webkit-font-smoothing: none</code>을 켜둔 게 원인. ProggyCrossed는 TTF 아웃라인이 있어 안티앨리어싱 ON이 정답. <code class="inline">antialiased + optimizeLegibility</code>로 변경.</p></div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 13:40 KST · 사용자</div>
+          <div class="turn-title">폰트 혼합 사용</div>
+          <div class="quote-box">본문은 일반 폰트, 파일 경로/크기/날짜만 ProggyCrossed (혼합 사용)</div>
+          <div class="card"><h4>대응</h4><p><code class="inline">--font-app</code>(시스템 sans)과 <code class="inline">--font-mono</code>(ProggyCrossed) 두 변수로 분리. 본문은 sans, 모노스페이스가 어울리는 곳(경로 breadcrumb, 파일 크기, 수정일)에만 ProggyCrossed.</p></div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 13:45 KST · 사용자</div>
+          <div class="turn-title">숨김파일 토글 + 클릭형 경로</div>
+          <div class="quote-box">각 Pane별로 숨김파일(.으로 시작하는 파일 같이)보기 안보기를 체크박스로 구현해줘. 그리고, Pane A 등 페인 이름 및에 경로가 뜨는데, 그 경로도 경로 중간 이름을 클릭하면 이동하도록 해줘</div>
+          <div class="card"><h4>대응</h4>
+            <ul>
+              <li><code class="inline">PaneConfig.showHidden</code> 추가, 헤더에 <code class="inline">·숨김</code> 체크박스, 패널별 독립 동작 + localStorage 저장</li>
+              <li>경로를 breadcrumb으로 바꿔 세그먼트별 클릭 → 해당 경로로 이동, 마지막 세그먼트 강조</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 13:55 KST · 사용자</div>
+          <div class="turn-title">영문 메뉴 + 우클릭 메뉴 + 터미널 버튼</div>
+          <div class="quote-box">모든 메뉴는 영어로 하고, 파일에서 오른쪽 버튼을 누르면, 일반적인 파일 관리 (삭제, 이름변경 등) 기능이 나타나도록 해주고, Pane bar의 숨김 체크박스 옆에 버튼하나 만들어서 terminal이 해당 경로에서 열리도록 해줘</div>
+          <div class="card"><h4>대응</h4>
+            <ul>
+              <li>모든 라벨·툴팁·토스트 영문화 (Single/Side/Stack/Tri L/Tri T/Quad, Hidden, Refresh, Settings 등)</li>
+              <li>Rust 명령 추가: <code class="inline">rename_path</code>, <code class="inline">delete_path</code>(<code class="inline">gio trash</code> 휴지통), <code class="inline">create_dir</code>, <code class="inline">open_terminal</code>(8개 터미널 emulator 자동 탐색)</li>
+              <li>React: <code class="inline">ContextMenu.tsx</code> 신규(외부 클릭/ESC 닫기, 화면 밖 자동 보정), Pane에 ▶_ 터미널 버튼</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 14:02 KST · 사용자</div>
+          <div class="turn-title">패널 이름 = 폴더 이름 (자동)</div>
+          <div class="quote-box">일단, Pane의 기본 이름은 내가 지정하지 않으면 현재 폴더 이름을 보여주는걸로 하자</div>
+          <div class="card"><h4>대응</h4><p>이름이 비면 <code class="inline">basename(path)</code> 자동 표시. 이전 디폴트(<code class="inline">Pane A/B/C/D</code>)는 정규식으로 감지해 자동 모드로 마이그레이션. Settings 입력란에 <code class="inline">(auto: ...)</code> 플레이스홀더 + 힌트.</p></div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 14:08 KST · 사용자</div>
+          <div class="turn-title">Git 정보 표시 (선택형)</div>
+          <div class="quote-box">git 정보가 감지되면 git의 기본 정보, comit 해야할 수, 변경 등 흔히 터미널 테마들이 보여주는 것을 표시할 수 있으면 좋겠어. 그걸 보여줄지 말지도 pane toolbar에서 체크하도록 하고, 디폴트는 끄는 거야</div>
+          <div class="card"><h4>대응</h4>
+            <ul>
+              <li>Rust: <code class="inline">git_status</code> 명령. <code class="inline">git rev-parse</code>·<code class="inline">rev-list</code>·<code class="inline">status --porcelain</code>로 브랜치/ahead/behind/staged/modified/untracked 파싱.</li>
+              <li>React: <code class="inline">PaneConfig.showGit</code> 토글, 활성 시 경로 위에 <code class="inline">⎇ main ↑3 ↓1 +2 ~5 ?7</code> 형태 바 표시. 색상 의미별(green/orange/red/gray).</li>
+              <li>파일 변경 후 자동 갱신 (entries 의존성).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="phase">D. 게시 준비 (README · 아이콘 · LICENSE)</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 14:20 KST · 사용자</div>
+          <div class="turn-title">GitHub 게시 준비 + Dash 아이콘</div>
+          <div class="quote-box">좋아 이걸 누구나 쓸 수 있도록 git에 올리고 싶은데, 설치법, 사용법을 md로 잘 정리해줘 github에 올릴 수 있도록 정리해줘 그 전에 Dash에 지정해야하는데 적당한 아이콘도 만들어주고,</div>
+          <div class="card"><h4>대응</h4>
+            <ul>
+              <li>아이콘 4종(32/128/256/512 PNG)을 4분할 컨셉(블루/오렌지/그린/퍼플 쿼드런트, 흰 라운드 프레임)으로 Python <code class="inline">struct/zlib</code>로 직접 픽셀 생성</li>
+              <li><code class="inline">tauri.conf.json</code>: <code class="inline">bundle.active</code>=true, targets <code class="inline">["deb","appimage"]</code>, 메타데이터, 의존성</li>
+              <li><code class="inline">README.md</code> 신규: 설치 4가지(.deb / 소스빌드 / 수동 desktop entry), 사용법, 백엔드 명령 표, 로드맵</li>
+              <li><code class="inline">LICENSE</code> (MIT), <code class="inline">assets/finder.desktop</code> 템플릿</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 14:30 KST · 사용자</div>
+          <div class="turn-title">apt install 가능한가?</div>
+          <div class="quote-box">apt install 명령이 되도록 하는 방법은 뭘까?</div>
+          <div class="card"><h4>대응</h4><p>3가지 길(Launchpad PPA / GitHub Pages 자체 APT repo / Cloudsmith) 비교. 이미 <code class="inline">tauri build</code>가 .deb를 만들고 있고 무료 + 자동화 가능한 <b>GitHub Pages 자체 APT repo</b> 추천.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 14:35 KST · 사용자</div>
+          <div class="turn-title">.deb 용량 예측</div>
+          <div class="quote-box">deb 파일로 만들면 용량이 얼마가 될까?</div>
+          <div class="card"><h4>대응</h4><p>구성 분해 후 5–10 MB 예상. 비교(Nautilus 1MB, VS Code 95MB) 제시. 추가 최적화 옵션(opt-level=z, lto, strip) 안내.</p></div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 14:40 KST · 사용자</div>
+          <div class="turn-title">실측 빌드</div>
+          <div class="quote-box">빌드해서 실제 크기 측정해줘</div>
+          <div class="card"><h4>대응 + 결과</h4>
+            <p><code class="inline">npm run tauri build</code> 백그라운드 실행 → 약 5분. 결과:</p>
+            <ul>
+              <li><b>.deb: 3.0 MB</b> (예상 5–10 MB보다 작음)</li>
+              <li>.AppImage: 74 MB (webkit 번들)</li>
+              <li>바이너리(미압축): 9.4 MB</li>
+            </ul>
+            <p>3.0 MB는 Electron 동급 앱 대비 30× 작은 사이즈.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="phase">E. APT 자동 배포 인프라</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 14:50 KST · 사용자</div>
+          <div class="turn-title">GitHub Pages APT repo 선택</div>
+          <div class="quote-box">B. GitHub Pages 자체 APT repo — 이미 tauri build로 만든 .deb을 GPG 서명해서 정적 파일로 호스팅. 사용자에게는 "한 줄 install"을 제공할 수 있음. 가장 실용적인 절충안.</div>
+          <div class="card"><h4>대응</h4>
+            <ul>
+              <li><code class="inline">scripts/build-apt-repo.sh</code> — .deb를 받아서 GitHub Pages용 APT repo 디렉토리 생성·GPG 서명, idempotent</li>
+              <li><code class="inline">.github/workflows/release.yml</code> — <code class="inline">v*</code> 태그 푸시 시 자동: 빌드 → GitHub Release 첨부 → APT repo 갱신 → <code class="inline">gh-pages</code> 푸시</li>
+              <li><code class="inline">docs/PUBLISHING.md</code> — 메인테이너용 일회성 셋업(GPG 키·시크릿·Pages) + 릴리스 절차</li>
+              <li>README 최상단에 한 줄 install 추가</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 15:00 KST · 사용자</div>
+          <div class="turn-title">git init + GitHub 푸시</div>
+          <div class="quote-box">git init하고 github에 올려줘</div>
+          <div class="card"><h4>대응</h4>
+            <p>객관식 질의로 username(<b>PinkWink</b>)·repo명(<b>finder-pw</b>)·visibility(<b>Public</b>) 확정. <code class="inline">README</code>·<code class="inline">PUBLISHING.md</code>의 <code class="inline">&lt;your-user&gt;</code> 플레이스홀더를 모두 실제 값으로 치환. <code class="inline">git init -b main</code> → 초기 커밋 → remote 추가까지 진행. <code class="inline">.claude/settings.local.json</code>은 추적에서 제외.</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 15:10 KST · 사용자</div>
+          <div class="turn-title">PAT 토큰 1차 (workflow scope 부족)</div>
+          <div class="quote-box">[PAT 토큰 1차] ghp_xxxx</div>
+          <div class="card"><h4>대응</h4>
+            <p>채팅으로 토큰 직접 받아 즉시 보안 경고 후 일회성 URL 푸시 시도 → <code class="inline">workflow</code> scope 부족으로 거부됨. 사용자에게 토큰 폐기 + workflow scope 포함 새 토큰 안내.</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 15:15 KST · 사용자</div>
+          <div class="turn-title">PAT 토큰 2차 (성공)</div>
+          <div class="quote-box">[PAT 토큰 2차] ghp_xxxx</div>
+          <div class="card"><h4>대응</h4><p>일회성 URL 푸시 성공. 35개 파일 초기 커밋 <code class="inline">c682f39</code> 업로드. 사용자에게 즉시 토큰 revoke 권고.</p></div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 15:25 KST · 사용자</div>
+          <div class="turn-title">남은 셋업 명령 모두 실행 위임</div>
+          <div class="quote-box">지금 각 명령들 니가 실행해줘</div>
+          <div class="card"><h4>대응</h4>
+            <ul>
+              <li>토큰 만료 확인 → <code class="inline">gh</code> CLI가 keyring에 사용자 인증을 보유 (이전 세션) 발견, 그대로 사용</li>
+              <li><code class="inline">~/.local/bin/gh</code>에 정적 바이너리 설치 (sudo 불필요)</li>
+              <li>worktree로 <code class="inline">gh-pages</code> orphan 브랜치 생성·푸시 (메인 작업 트리 무손상)</li>
+              <li>GitHub Pages API로 활성화 (<code class="inline">PUT /repos/.../pages</code>)</li>
+              <li>로컬 GPG 키 생성: <code class="inline">"PWFinder Repo &lt;pinkwink.korea@gmail.com&gt;"</code> rsa4096 sign 2y, no passphrase. KEY_ID = <code class="inline">34116377AF822B48</code></li>
+              <li>비밀키를 <code class="inline">gh secret set</code>으로 <code class="inline">GPG_KEY_ID</code>·<code class="inline">GPG_PRIVATE_KEY</code>에 등록 (디스크에 키 파일 안 남김)</li>
+              <li><code class="inline">git tag v0.1.0 && git push origin v0.1.0</code> → 워크플로우 가동</li>
+              <li><b>v0.1.0 릴리스 5분 54초 만에 성공</b></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 15:35 KST · 사용자</div>
+          <div class="turn-title">맥에서도 동작?</div>
+          <div class="quote-box">근데 이 앱은 맥에서도 동작할수 있지 않을까?</div>
+          <div class="card"><h4>대응</h4><p>Tauri는 크로스플랫폼 → 가능. 코드 변경 4곳(<code class="inline">xdg-open→open</code>, <code class="inline">gio trash→osascript</code>, terminal, identifier)만 분기 처리. 빌드는 macOS 러너 필요(GitHub Actions 무료). 배포는 Homebrew cask 추천.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 15:42 KST · 사용자</div>
+          <div class="turn-title">의존성 자동 설치되는가?</div>
+          <div class="quote-box">맥은 일단 나중에 하고, 근데, 설치할때 dependency들이 모두 따라 설치되는걸까? 유저들이 설치 해야할까?</div>
+          <div class="card"><h4>대응</h4><p>실측 dry-run 결과: <code class="inline">apt install</code>이 자동 해결. Ubuntu 24.04의 <b>t64 transition</b>(libgtk-3-0 → libgtk-3-0t64)도 <code class="inline">Provides:</code> 메타데이터로 투명하게 처리됨. 단, <code class="inline">Depends:</code> 필드가 중복(<code class="inline">libwebkit..., libgtk..., libwebkit..., libgtk...</code>) 이라는 미세 결함 발견 — Tauri 자동감지 + 우리 명시가 겹침.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 15:50 KST · 사용자</div>
+          <div class="turn-title">v0.1.1 — 중복 정리 릴리스</div>
+          <div class="quote-box">그럼 그 중복 정리하고 v0.1.1로 다시 릴리스해줘</div>
+          <div class="card"><h4>대응</h4><p><code class="inline">tauri.conf.json.bundle.linux.deb.depends</code>를 <code class="inline">[]</code>로 → Tauri 자동 감지값만 남김. 3곳 버전 0.1.0→0.1.1 + Cargo.lock 갱신. 태그 푸시 → <b>5분 56초 만에 v0.1.1 릴리스 성공</b>.</p></div>
+        </div>
+      </div>
+
+      <h3 class="phase">F. 큰 기능 추가 — Tree 사이드바 + 상태 복원</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 16:00 KST · 사용자</div>
+          <div class="turn-title">트리 사이드바 + Active pane + 완전 복원</div>
+          <div class="quote-box">화면 전체에서 제일 왼쪽에 트리구조로 폴더 구조를 보여주는 창을 만들자. 그 창을 on/off 할 수 있는 버튼도 Single, Side, Stack, Tri L, Tri T, Quad 있는 줄에 추가하고, 현재 활성화 된 pane의 트리 구조를 보여주는 걸로 하면 될듯. 그리고 그 트리에서 클릭하면 해당 pane이 이동하는 기능도 넣고 ... 아 그리고, 창을 닫았다가 다시 켜면, 창의 설정(Pane 숫자 등) 그리고, 앱 창의 전체 크기, 각 pane 별로 최근 접근했던 폴더까지 모두 함께 복원되도록 해줘</div>
+          <div class="card"><h4>대응 — 큰 변경 5개</h4>
+            <ul>
+              <li><b>TreeSidebar.tsx</b> 신규: 좌측 260px, <code class="inline">/</code> 루트, lazy 펼침, 활성 pane 경로까지 자동 펼침·하이라이트</li>
+              <li><b>Toolbar Tree 토글</b>: 레이아웃 버튼 옆에 추가, 활성/비활성 시각 분기</li>
+              <li><b>Active pane 추적</b>: <code class="inline">activeIndex</code> 상태, mousedown으로 active 변경, 위쪽 테두리 5px·헤더 색조 16% 틴트</li>
+              <li><b>패널 히스토리</b>: <code class="inline">PaneConfig.history</code> (max 20, dedup), Back ← 버튼 — 히스토리 있으면만 노출, 클릭 시 pop 후 history 비추가</li>
+              <li><b>창 크기/위치 복원</b>: <code class="inline">tauri-plugin-window-state</code> 추가 (Cargo + Builder + capabilities). localStorage엔 panes·layout·showTree·activeIndex 저장.</li>
+            </ul>
+            <p class="note">TypeScript / Rust 모두 컴파일 통과 (cargo check 5초, tsc --noEmit 무에러).</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 16:18 KST · 사용자</div>
+          <div class="turn-title">실행</div>
+          <div class="quote-box">실행해줘</div>
+          <div class="card"><h4>대응</h4><p>nvm + cargo env 로드 스크립트로 <code class="inline">npm run tauri dev</code> 백그라운드 실행. Vite 79ms ready, Cargo 4.5초로 plugin 포함 컴파일 완료, 윈도우 정상 부팅.</p></div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 16:25 KST · 사용자</div>
+          <div class="turn-title">폰트 다른 PC에서도 따라가나?</div>
+          <div class="quote-box">내 ProggyCrossed 폰트를 사용하는데, 이것도 다른 PC에서 사용자가 받으면 전달되는걸까?</div>
+          <div class="card"><h4>대응</h4><p>네. <code class="inline">public/fonts/ProggyCrossed-Regular.ttf</code> → Vite 빌드 → Tauri의 <code class="inline">generate_context!()</code>가 <code class="inline">dist/</code>를 바이너리에 임베드. 사용자 시스템에 폰트 미설치여도 webview가 임베드된 자산을 읽음. 라이선스도 MIT-호환이라 재배포 OK.</p></div>
+        </div>
+      </div>
+
+      <h3 class="phase">G. 이름 변경 + v0.1.2</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 16:35 KST · 사용자</div>
+          <div class="turn-title">PWFinder로 리네임 + v0.1.2 릴리스</div>
+          <div class="quote-box">릴리즈 하자. 그 전에 앱 이름을 Finder에서 PWFinder로 바꾸자. 나중에 맥에서 쓸수있도록. 맥에서는 Finder가 있으니까</div>
+          <div class="card"><h4>대응</h4>
+            <ul>
+              <li>리네임: <code class="inline">productName</code> Finder→PWFinder, identifier <code class="inline">com.finder.app→kr.pinkwink.pwfinder</code>, Cargo crate <code class="inline">finder→pwfinder</code>, lib <code class="inline">finder_lib→pwfinder_lib</code>, .desktop 파일 / 모든 문서 일괄</li>
+              <li>워크플로우에 옛 <code class="inline">pool/main/f/finder/</code> 정리 스텝 추가</li>
+              <li>3곳 버전 0.1.1→0.1.2, 커밋 <code class="inline">29efcbd</code>, 태그 v0.1.2 푸시</li>
+              <li><b>v0.1.2 릴리스 5분 5초 만에 성공</b></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 16:50 KST · 사용자</div>
+          <div class="turn-title">완료 알림 요청 + 빌드 결과</div>
+          <div class="quote-box">빌드 끝나면 알려줘</div>
+          <div class="card"><h4>대응 + 발견</h4>
+            <p><code class="inline">gh run watch</code> 백그라운드로 대기 → 완료 알림 수신. 발견: Tauri의 deb 번들러가 productName <b>"PWFinder"를 kebab-case로 자동 변환 → 패키지명이 <code class="inline">pw-finder</code>(하이픈 포함)</b>가 됨. 바이너리는 <code class="inline">/usr/bin/pwfinder</code>(Cargo 따라감), 표시명은 <code class="inline">PWFinder</code>. 의도와는 살짝 어긋나지만 동작 OK. README/PUBLISHING/index.html을 <code class="inline">pw-finder</code>로 수정하고 manual dispatch로 gh-pages 인덱스도 갱신.</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-07 17:00 KST · 사용자</div>
+          <div class="turn-title">history.html 갱신 + 푸시 (현재)</div>
+          <div class="quote-box">history.html 잘 갱신해. 그리고 git push까지</div>
+          <div class="card"><h4>대응</h4><p>본 문서를 v0.1.2까지의 전체 흐름으로 재구성. 단계 표지(A–G)로 구획화. 사용자 지시 원문 인용 + 절대시각 보존. 갱신 후 main에 커밋·푸시.</p></div>
         </div>
 
       </div>
 
       <h2 class="section">최종 산출물</h2>
 
-      <div class="summary-grid">
-        <div class="stat">
-          <div class="label">생성된 파일</div>
-          <div class="value">17 <span class="pill">files</span></div>
-        </div>
-        <div class="stat">
-          <div class="label">백엔드 명령</div>
-          <div class="value">4 <span class="pill green">Rust</span></div>
-        </div>
-        <div class="stat">
-          <div class="label">React 컴포넌트</div>
-          <div class="value">5 <span class="pill">TSX</span></div>
-        </div>
-        <div class="stat">
-          <div class="label">레이아웃 모드</div>
-          <div class="value">6</div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top: 16px;">
-        <h4>프로젝트 구조</h4>
-        <div class="file-tree">finder/
-├── package.json              # Vite + React + Tauri CLI
-├── vite.config.ts            # 포트 1420 고정
-├── tsconfig.json
-├── tsconfig.node.json
-├── index.html
-├── history.html              # 본 문서
-├── .gitignore
-├── src/
-│   ├── main.tsx              # React 진입점
-│   ├── App.tsx               # 레이아웃 + 패널 상태 관리
-│   ├── App.css               # 밝은 테마 스타일
-│   ├── types.ts              # FileEntry, PaneConfig, LayoutMode
-│   └── components/
-│       ├── Toolbar.tsx       # 6가지 레이아웃 전환 버튼
-│       ├── Pane.tsx          # 단일 패널 (헤더 + 파일 리스트)
-│       ├── FileList.tsx      # 파일/폴더 행
-│       └── PaneSettings.tsx  # 이름·색상·경로 설정 모달
-└── src-tauri/
-    ├── Cargo.toml            # tauri 2, dirs, serde
-    ├── build.rs
-    ├── tauri.conf.json       # 윈도우 1400×900, 식별자 com.finder.app
-    ├── capabilities/
-    │   └── default.json      # core:default
-    └── src/
-        ├── main.rs           # 엔트리
-        └── lib.rs            # list_directory / get_home_dir
-                              # / get_parent_dir / open_file</div>
-      </div>
-
-      <div class="grid" style="margin-top: 12px;">
-        <div class="card">
-          <h4>백엔드 (Rust) 핵심</h4>
-          <ul>
-            <li><code class="inline">list_directory(path)</code> — 폴더 우선, 이름순 정렬</li>
-            <li><code class="inline">get_home_dir()</code> — 초기 경로</li>
-            <li><code class="inline">get_parent_dir(path)</code> — 상위 폴더 이동</li>
-            <li><code class="inline">open_file(path)</code> — <code class="inline">xdg-open</code>으로 기본 앱 열기</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h4>프론트 (React) 핵심</h4>
-          <ul>
-            <li>4개 패널 상태를 <code class="inline">App.tsx</code>에서 단일 소스로 관리</li>
-            <li><code class="inline">localStorage</code>에 패널 구성 + 레이아웃 영속화</li>
-            <li>패널 헤더에 색상 도트 + 별칭 + 경로 + ↑/⟳/⚙ 버튼</li>
-            <li>설정 모달: 8색 프리셋 + 컬러 피커 + 직접 경로 입력</li>
-            <li>파일 더블클릭 → 폴더면 진입, 파일이면 OS 기본 앱 실행</li>
-          </ul>
-        </div>
-      </div>
-
-      <h2 class="section">실행 방법</h2>
-      <div class="card">
-        <p>현재 시스템에는 Rust/Node 툴체인이 설치되어 있지 않습니다. 아래 순서로 진행하세요.</p>
-        <ol>
-          <li>
-            Rust 설치:
-            <code class="inline">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code>
-          </li>
-          <li>
-            Node 설치 (예: nvm):
-            <code class="inline">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash</code> 후
-            <code class="inline">nvm install --lts</code>
-          </li>
-          <li>
-            Tauri 시스템 의존성 (우분투):
-            <code class="inline">sudo apt install libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev</code>
-          </li>
-          <li>
-            프로젝트 디렉토리에서:
-            <code class="inline">npm install</code> →
-            <code class="inline">npm run tauri dev</code>
-          </li>
-        </ol>
-        <p class="note">
-          첫 실행 시 Rust 컴파일에 수 분이 걸릴 수 있습니다. 이후부터는 빠릅니다.
-        </p>
-      </div>
-
-      <h2 class="section">남은 과제 (제안)</h2>
       <div class="grid">
         <div class="card">
-          <h4>단기 (UX)</h4>
+          <h4>저장소 / 배포</h4>
           <ul>
-            <li>분할선 드래그로 비율 조절 (현재는 균등)</li>
-            <li>키보드 단축키 (Ctrl+1~6 → 레이아웃 토글)</li>
-            <li>경로 자동완성 / 즐겨찾기 사이드바</li>
+            <li><a href="https://github.com/PinkWink/finder-pw">github.com/PinkWink/finder-pw</a> (Public, MIT)</li>
+            <li>Releases: v0.1.0 / v0.1.1 / v0.1.2</li>
+            <li>APT: <code class="inline">https://pinkwink.github.io/finder-pw/</code></li>
+            <li>GitHub Actions: 태그 push → 빌드 → GH Release + APT repo 자동</li>
           </ul>
         </div>
         <div class="card">
-          <h4>중기 (기능)</h4>
+          <h4>사용자 설치 한 줄</h4>
+          <pre class="code" style="white-space: pre-wrap; font-size: 11.5px;">curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg \
+  | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
+echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] \
+https://pinkwink.github.io/finder-pw stable main" \
+  | sudo tee /etc/apt/sources.list.d/pwfinder.list
+sudo apt update
+sudo apt install pw-finder</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>최종 기능 매트릭스</h4>
+        <ul>
+          <li><b>레이아웃</b>: Single · Side · Stack · Tri L · Tri T · Quad (6종) + Tree 사이드바 토글</li>
+          <li><b>패널별 설정</b>: 색상 · 별칭(자동/수동) · 경로 · 숨김파일 · git 상태 · 히스토리(max 20) · Back 버튼</li>
+          <li><b>파일 작업</b>: 더블클릭 진입/열기, 패널 간 드래그앤드롭 복사(재귀), 우클릭(Open/Rename/Copy path/Move to trash)</li>
+          <li><b>네비게이션</b>: breadcrumb 클릭 점프, 트리 클릭 점프, ↑ 부모, ⟳ 새로고침</li>
+          <li><b>외부 도구</b>: ▶_ 터미널(8개 emulator 자동 탐색), 파일 더블클릭 시 xdg-open</li>
+          <li><b>영속화</b>: 패널 구성 · 레이아웃 · 트리 표시 · active pane · <b>창 크기/위치</b> · <b>경로 히스토리</b> 모두 재실행 후 복원</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h4>Rust 백엔드 명령 (10개)</h4>
+        <table class="compare">
+          <tr><th>명령</th><th>역할</th></tr>
+          <tr><td><code class="inline">list_directory</code></td><td>폴더 우선·이름순 정렬된 항목 반환</td></tr>
+          <tr><td><code class="inline">get_home_dir</code> / <code class="inline">get_parent_dir</code></td><td>초기 경로 / 상위 폴더</td></tr>
+          <tr><td><code class="inline">open_file</code></td><td><code class="inline">xdg-open</code></td></tr>
+          <tr><td><code class="inline">copy_path</code></td><td>재귀 복사, 충돌 시 <code class="inline">(copy N)</code></td></tr>
+          <tr><td><code class="inline">rename_path</code></td><td>이름 변경 (이미 존재 시 거부)</td></tr>
+          <tr><td><code class="inline">delete_path</code></td><td><code class="inline">gio trash</code> 우선, 실패 시 영구 삭제</td></tr>
+          <tr><td><code class="inline">create_dir</code></td><td>새 폴더 생성</td></tr>
+          <tr><td><code class="inline">open_terminal</code></td><td>8개 터미널 emulator 자동 탐색 후 실행</td></tr>
+          <tr><td><code class="inline">git_status</code></td><td>브랜치 / ahead·behind / staged·modified·untracked</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h4>릴리스 비교</h4>
+        <table class="compare">
+          <tr><th>버전</th><th>날짜</th><th>주요 변경</th><th>빌드 시간</th><th>.deb</th></tr>
+          <tr><td>v0.1.0</td><td>15:34</td><td>최초 릴리스 (Finder)</td><td>5m 54s</td><td>3.0 MB</td></tr>
+          <tr><td>v0.1.1</td><td>16:00</td><td>deb Depends 중복 제거</td><td>5m 56s</td><td>3.0 MB</td></tr>
+          <tr><td>v0.1.2</td><td>17:00</td><td>PWFinder 리네임 + Tree 사이드바 + Active pane + History + Window state 복원</td><td>5m 5s</td><td><b>3.04 MB</b></td></tr>
+        </table>
+      </div>
+
+      <h2 class="section">남은 과제 (Roadmap)</h2>
+      <div class="grid">
+        <div class="card">
+          <h4>UX</h4>
           <ul>
-            <li>패널 간 드래그앤드롭 복사/이동</li>
-            <li>각 패널 내 탭 다중 보유</li>
-            <li>파일 검색 / 필터 / 숨김 파일 토글</li>
+            <li>분할선 드래그로 패널 비율 조정</li>
+            <li>키보드 단축키 (Ctrl+1..6 레이아웃)</li>
+            <li>패널 내 탭 다중 보유</li>
+            <li>북마크/즐겨찾기</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>기능</h4>
+          <ul>
+            <li>이동(잘라내기) — Shift+드래그로 move</li>
+            <li>인-패널 검색 / 필터</li>
+            <li>외부 앱(Nautilus 등)에서 파일 드롭</li>
+            <li>git 상태 갱신 주기 설정</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>플랫폼</h4>
+          <ul>
+            <li>macOS 포팅 (xdg-open / gio trash / terminal cfg 분기, .dmg, Homebrew cask)</li>
+            <li>Windows 빌드 (.msi)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>인프라</h4>
+          <ul>
+            <li>Node.js 24로 Actions 마이그레이션 (deprecation 경고)</li>
+            <li>다중 Ubuntu 버전 빌드 매트릭스 (22.04 + 24.04)</li>
+            <li>버전 자동 bump 스크립트</li>
           </ul>
         </div>
       </div>
 
       <footer>
-        Finder · 작성 2026-05-07 · 본 문서는 사용자 지시에 따라 자동 생성된 작업 로그입니다.
+        PWFinder · 단일 세션 작업 로그 · 2026-05-07 · 본 문서는 사용자 지시에 따라 자동 생성·갱신됩니다.
       </footer>
     </div>
   </body>
