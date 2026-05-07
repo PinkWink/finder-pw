@@ -1,0 +1,15 @@
+Origin: Finder
+Label: Finder
+Suite: stable
+Codename: stable
+Version: 1.0
+Architectures: amd64
+Components: main
+Description: Finder file explorer apt repository
+Date: Thu, 07 May 2026 06:39:50 +0000
+MD5Sum:
+ 4b89bdade0c7dbba5096bbc06f9a747b              842 main/binary-amd64/Packages
+ 058796459a36bababb2739610db38762              536 main/binary-amd64/Packages.gz
+SHA256:
+ 08eda5602ae449dca68621962ef3efbbddebde6e9e5b25f6804e9bbc5c5e8da2              842 main/binary-amd64/Packages
+ 37a26be569755a1d06bc8d5e71b6f1a1e64496703331e460b28c278c9d8c5dcf              536 main/binary-amd64/Packages.gz

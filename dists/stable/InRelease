@@ -1,0 +1,34 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: Finder
+Label: Finder
+Suite: stable
+Codename: stable
+Version: 1.0
+Architectures: amd64
+Components: main
+Description: Finder file explorer apt repository
+Date: Thu, 07 May 2026 06:39:50 +0000
+MD5Sum:
+ 4b89bdade0c7dbba5096bbc06f9a747b              842 main/binary-amd64/Packages
+ 058796459a36bababb2739610db38762              536 main/binary-amd64/Packages.gz
+SHA256:
+ 08eda5602ae449dca68621962ef3efbbddebde6e9e5b25f6804e9bbc5c5e8da2              842 main/binary-amd64/Packages
+ 37a26be569755a1d06bc8d5e71b6f1a1e64496703331e460b28c278c9d8c5dcf              536 main/binary-amd64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn8M7YACgkQNBFjd6+C
+K0jaDg//eGgQoZKmdrF7xvsOdwZP+lR0+AnFV1CejqLUzOPMH02MyX7kqPWBJokU
+8NmrepRQIEdtok6qj23KcSAJDF8NTQhW+siVt2NhuBWmkQxWCe9zmPGDz8vM/Yv2
+6bFDS1hNwaGAhUdpqrDyh6GBKoATmlCwGm8UwiT+F2dMwhWznHB8c/m2T7gRIe3R
+0MDtaTrMV9ExGYc0NF4suOi7MNPvVZJ1LRU8sx52qvdN6Fcci2zThDjzW59oC9Wh
+osdfvJdnrHsrAPBKj7PwjCarkAmBshWTPsw7JPCMJ0UP4OpCIZpzbmvYEHnM7B23
+TNA7IYDlEf1CG1cD6lhuRQzMQRgsN05y4BdyX7GstC9LiehaCLae3EbNs5MXy9pi
+gmbddi8/3AiHwzxC+AuKMjyCKF8gd+32q5evpjbxup6B+7O6019koABZq7jmi34x
+fm1j+4hRvvZhQgEubLzrEA94nP99y+KHLk8dyWNGp669l0gew3a2hMEmqtaqBgq+
+JkyPJp/HypDA1e8dyos8hbhyqTlpDeTyDjfk5LioP/j30mhzNmjT16chThWN4m4p
+y2cG6ova2NZTJMi4bPliRz3PUvqiJc/BYdne5oejWjua0Enm3ha+GKMfrOEKg/Ys
+coHp13BdxTDGDRggKXjviUpSDb30nBxhmQuHFU/8iMNZGAHvewg=
+=L8FM
+-----END PGP SIGNATURE-----

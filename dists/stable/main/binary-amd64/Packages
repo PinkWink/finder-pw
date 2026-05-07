@@ -1,0 +1,15 @@
+Package: finder
+Version: 0.1.0
+Architecture: amd64
+Maintainer: pw
+Installed-Size: 9616
+Depends: libwebkit2gtk-4.1-0, libgtk-3-0, libwebkit2gtk-4.1-0, libgtk-3-0
+Filename: pool/main/f/finder/Finder_0.1.0_amd64.deb
+Size: 3111676
+MD5sum: b08be7bbc5795e4e0117238bb605748c
+SHA1: b57972801ea2193827d18517922a76260122ead7
+SHA256: 06b6462060dccf0ab36d07cdf764c0c9ea4d3a345eada54aaa929b0cbcad8db1
+Priority: optional
+Description: 4-split file explorer with per-pane color, name, hidden toggle, git status, terminal, and drag-and-drop copy
+ Finder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.
+
