@@ -5,10 +5,10 @@ Maintainer: PinkWink
 Installed-Size: 9838
 Depends: libwebkit2gtk-4.1-0, libgtk-3-0
 Filename: pool/main/p/pwfinder/PWFinder_0.1.2_amd64.deb
-Size: 3184418
-MD5sum: 7691821786e77e9ad834bb9358b3e23c
-SHA1: a72d3b0eb02f7cb2e8e53a6aefd3e466a2e7a929
-SHA256: 36c5bb6ea379b2084a7a4f9251afc19b44a8f4311a460031e56953d905812734
+Size: 3184414
+MD5sum: b60a37c597535cbb1e2902243625e343
+SHA1: a2cc06434bca6082806048b867ae811935c554e4
+SHA256: a2f85803d2e169c257d3ade0bde98876bc268f0fabaa4a4d1540dfa01adb9fb5
 Priority: optional
 Description: 4-split file explorer with per-pane color, name, hidden toggle, git status, terminal, and drag-and-drop copy
  PWFinder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.

@@ -6,10 +6,10 @@ Version: 1.0
 Architectures: amd64
 Components: main
 Description: PWFinder file explorer apt repository
-Date: Thu, 07 May 2026 08:16:10 +0000
+Date: Thu, 07 May 2026 08:30:00 +0000
 MD5Sum:
- 2c2da168fa5b3f8ace674a7149c5f202              824 main/binary-amd64/Packages
- 7ba713292d9504caacb477e43aa9da71              544 main/binary-amd64/Packages.gz
+ 38811da79d013a5986943f8e47b101aa              824 main/binary-amd64/Packages
+ 10f4b5c5f93998a09bde11ca5b4dad29              544 main/binary-amd64/Packages.gz
 SHA256:
- cef0ebc51595a66c098b34ae3f39d6c49c6dc7e4bf080413df3d83f8151106b8              824 main/binary-amd64/Packages
- edf5298dedbe981b94c8da39b7f3cd1e6cdafef77d28fc36b2a01c923bc72b97              544 main/binary-amd64/Packages.gz
+ d8b7f78ba5e713ca18d12aed60f7098fc1bf54becff5b1e8c2572ef95ed7bd12              824 main/binary-amd64/Packages
+ 0d1fe086d3aabeccf008a93e70c045854044d41fef06970f3e3276c8b93b0ace              544 main/binary-amd64/Packages.gz
