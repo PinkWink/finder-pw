@@ -1,6 +1,6 @@
 [package]
 name = "finder"
-version = "0.1.0"
+version = "0.1.1"
 description = "A 4-split file explorer"
 authors = ["pw"]
 edition = "2021"
