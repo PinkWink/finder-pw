@@ -1,14 +1,17 @@
-# Finder
+# PWFinder
 
-A 4-split file explorer for Linux desktops. Each pane is independent — navigate, color-tag, label, drag-and-drop copy, and check git status. Designed to make multi-folder workflows actually pleasant.
+A 4-split file explorer for Linux desktops. Each pane is independent — navigate, color-tag, label, drag-and-drop copy, and check git status. Includes a left-side folder tree and per-pane history. Designed to make multi-folder workflows actually pleasant.
 
 > Built with Rust + Tauri 2 + React. Single native binary, ~10–30 MB RAM, packaged as `.deb` / AppImage.
+>
+> Named PWFinder so it doesn't collide with macOS Finder when ported.
 
 ---
 
 ## Features
 
 - **Up to 4 panes** in 6 layouts: Single, Side, Stack, Tri-L, Tri-T, Quad
+- **Optional folder tree sidebar** — toggle from the toolbar; click any folder to navigate the active pane
 - **Per-pane color and name** — name auto-derives from the current folder, override anytime in Settings
 - **Drag-and-drop copy** between panes (recursive for folders, auto-renames on collision)
 - **Right-click context menu**: Open, Rename, Copy path, Move to trash
@@ -17,7 +20,8 @@ A 4-split file explorer for Linux desktops. Each pane is independent — navigat
   - `Git` — show branch, ahead/behind vs upstream, staged / modified / untracked counts
 - **Open terminal** at the current pane's path (`x-terminal-emulator` → `gnome-terminal` → `konsole` → ... → `xterm`)
 - **Breadcrumb path** — click any path segment to jump to it
-- **Persistent state** — pane configs and layout saved to `localStorage`
+- **Per-pane history** — Back button to revisit prior folders
+- **Persistent state** — pane configs, layout, tree visibility, active pane, and window size/position all restored on relaunch
 
 ---
 
@@ -25,25 +29,25 @@ A 4-split file explorer for Linux desktops. Each pane is independent — navigat
 
 ### Option A — `apt install` (recommended, Ubuntu/Debian)
 
-One-time setup, registers Finder as an apt source so `sudo apt upgrade` keeps it updated automatically.
+One-time setup. Registers PWFinder as an apt source so `sudo apt upgrade` keeps it updated automatically.
 
 ```bash
-curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/finder.gpg
-echo "deb [signed-by=/usr/share/keyrings/finder.gpg] https://pinkwink.github.io/finder-pw stable main" | sudo tee /etc/apt/sources.list.d/finder.list
+curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
+echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://pinkwink.github.io/finder-pw stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install finder
+sudo apt install pwfinder
 ```
 
-The app will appear in the application launcher (Dash / Activities).
+The app will appear in the application launcher (Dash / Activities) as **PWFinder**.
 
 > Maintainer: see [`docs/PUBLISHING.md`](docs/PUBLISHING.md) for the one-time GPG/Pages setup that powers this.
 
 ### Option B — pre-built `.deb` (no apt source)
 
-Download `finder_<version>_amd64.deb` from the [Releases](../../releases) page and install:
+Download `PWFinder_<version>_amd64.deb` from the [Releases](../../releases) page and install:
 
 ```bash
-sudo dpkg -i finder_*.deb
+sudo dpkg -i PWFinder_*.deb
 sudo apt-get install -f      # only if dpkg complains about missing deps
 ```
 
@@ -83,7 +87,7 @@ sudo apt-get install -f      # only if dpkg complains about missing deps
 
 ```bash
 git clone https://github.com/PinkWink/finder-pw.git
-cd finder
+cd finder-pw
 npm install
 npm run tauri build
 ```
@@ -91,8 +95,8 @@ npm run tauri build
 The `.deb` and AppImage are produced at:
 
 ```
-src-tauri/target/release/bundle/deb/finder_*.deb
-src-tauri/target/release/bundle/appimage/finder_*.AppImage
+src-tauri/target/release/bundle/deb/PWFinder_*.deb
+src-tauri/target/release/bundle/appimage/PWFinder_*.AppImage
 ```
 
 > First build is slow (5–10 min — Tauri compiles ~280 crates). Subsequent builds are seconds.
@@ -104,24 +108,24 @@ If you'd rather not `dpkg -i`, after `npm run tauri build`:
 ```bash
 # Copy binary somewhere on PATH (or leave at target/release)
 mkdir -p ~/.local/bin
-cp src-tauri/target/release/finder ~/.local/bin/
+cp src-tauri/target/release/pwfinder ~/.local/bin/
 
 # Copy icon
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
-cp src-tauri/icons/icon.png ~/.local/share/icons/hicolor/512x512/apps/finder.png
+cp src-tauri/icons/icon.png ~/.local/share/icons/hicolor/512x512/apps/pwfinder.png
 
 # Install desktop entry
 mkdir -p ~/.local/share/applications
 sed \
-  -e "s|__BIN__|$HOME/.local/bin/finder|" \
-  -e "s|__ICON__|finder|" \
-  assets/finder.desktop > ~/.local/share/applications/finder.desktop
+  -e "s|__BIN__|$HOME/.local/bin/pwfinder|" \
+  -e "s|__ICON__|pwfinder|" \
+  assets/pwfinder.desktop > ~/.local/share/applications/pwfinder.desktop
 
 # Refresh Dash cache
 update-desktop-database ~/.local/share/applications 2>/dev/null || true
 ```
 
-The Finder entry will appear in Dash within a few seconds.
+The PWFinder entry will appear in Dash within a few seconds.
 
 ---
 
@@ -138,13 +142,14 @@ npm run tauri dev
 ### Project structure
 
 ```
-finder/
+finder-pw/
 ├── src/                      # React + TypeScript frontend
 │   ├── App.tsx               # Layout, pane state, localStorage persistence
 │   ├── App.css               # Light theme + ProggyCrossed font for monospaced bits
 │   ├── types.ts
 │   └── components/
-│       ├── Toolbar.tsx       # 6 layout buttons
+│       ├── Toolbar.tsx       # Tree toggle + 6 layout buttons
+│       ├── TreeSidebar.tsx   # Lazy-loading folder tree
 │       ├── Pane.tsx          # Single pane (header, breadcrumb, git bar, file list, drag/drop)
 │       ├── FileList.tsx      # File rows
 │       ├── PaneSettings.tsx  # Name / path / color modal
@@ -156,7 +161,7 @@ finder/
 │   ├── icons/                # 32 / 128 / 256 / 512 PNG
 │   └── tauri.conf.json
 ├── public/fonts/             # ProggyCrossed-Regular.ttf
-├── assets/finder.desktop     # Manual install template
+├── assets/pwfinder.desktop   # Manual install template
 └── package.json
 ```
 
@@ -181,11 +186,13 @@ finder/
 
 | UI | Action |
 |---|---|
+| Toolbar `Tree` | Toggle the folder tree sidebar (drives the active pane) |
 | Toolbar layout buttons | Switch between 1 / 2 / 3 / 4-pane layouts |
+| Click on any pane | Mark it active (its color is shown in the tree highlight) |
 | Pane header `Hidden` | Toggle dotfiles in this pane |
 | Pane header `Git` | Toggle git status bar in this pane (only renders inside repos) |
 | Pane header `▶_` | Open terminal at this pane's path |
-| Pane header `↑` / `⟳` / `⚙` | Parent folder / refresh / pane settings |
+| Pane header `←` / `↑` / `⟳` / `⚙` | Back (history) / parent folder / refresh / pane settings |
 | Breadcrumb segment | Jump to that ancestor path |
 | Double-click file | Open in default app |
 | Double-click folder | Enter folder |
@@ -214,12 +221,13 @@ finder/
 - [ ] External drag-and-drop (drop from Nautilus / desktop)
 - [ ] Configurable git refresh interval
 - [ ] Keyboard shortcuts (Ctrl+1…6 for layouts)
+- [ ] macOS port (`.dmg`, Homebrew tap)
 
 ---
 
 ## Tech stack
 
-- **Backend**: Rust 1.75+, Tauri 2.x, `dirs` crate
+- **Backend**: Rust 1.75+, Tauri 2.x, `dirs` crate, `tauri-plugin-window-state`
 - **Frontend**: React 18, TypeScript 5, Vite 5
 - **Bundled font**: [ProggyCrossed](https://github.com/bluescan/proggyfonts) (used for monospaced bits — paths, sizes, dates, git counts)
 

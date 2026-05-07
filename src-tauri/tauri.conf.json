@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Finder",
-  "version": "0.1.1",
-  "identifier": "com.finder.app",
+  "productName": "PWFinder",
+  "version": "0.1.2",
+  "identifier": "kr.pinkwink.pwfinder",
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Finder",
+        "title": "PWFinder",
         "width": 1400,
         "height": 900,
         "minWidth": 800,
@@ -29,7 +29,7 @@
     "targets": ["deb", "appimage"],
     "category": "Utility",
     "shortDescription": "4-split file explorer with per-pane color, name, hidden toggle, git status, terminal, and drag-and-drop copy",
-    "longDescription": "Finder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.",
+    "longDescription": "PWFinder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

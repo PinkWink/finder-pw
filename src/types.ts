@@ -13,6 +13,7 @@ export interface PaneConfig {
   path: string;
   showHidden?: boolean;
   showGit?: boolean;
+  history?: string[];
 }
 
 export interface GitStatus {

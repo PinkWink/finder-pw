@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Finder
+Name=PWFinder
 GenericName=File Explorer
 Comment=4-split file explorer with per-pane color, git status, and terminal
 Exec=__BIN__ %F
@@ -9,4 +9,4 @@ Terminal=false
 Categories=Utility;FileManager;
 Keywords=file;explorer;split;pane;
 StartupNotify=true
-StartupWMClass=Finder
+StartupWMClass=PWFinder

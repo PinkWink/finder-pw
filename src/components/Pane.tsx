@@ -7,7 +7,10 @@ import ContextMenu, { ContextMenuItem } from "./ContextMenu";
 
 interface Props {
   config: PaneConfig;
+  isActive: boolean;
+  onActivate: () => void;
   onUpdate: (patch: Partial<PaneConfig>) => void;
+  onBack?: () => void;
 }
 
 function buildBreadcrumbs(path: string): { label: string; path: string }[] {
@@ -29,7 +32,7 @@ function basename(path: string): string {
   return parts[parts.length - 1] || "/";
 }
 
-export default function Pane({ config, onUpdate }: Props) {
+export default function Pane({ config, isActive, onActivate, onUpdate, onBack }: Props) {
   const [entries, setEntries] = useState<FileEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -207,8 +210,9 @@ export default function Pane({ config, onUpdate }: Props) {
 
   return (
     <div
-      className={`pane ${isDragOver ? "drag-over" : ""}`}
+      className={`pane ${isDragOver ? "drag-over" : ""} ${isActive ? "active" : ""}`}
       style={headerStyle}
+      onMouseDown={onActivate}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -241,6 +245,11 @@ export default function Pane({ config, onUpdate }: Props) {
         >
           ▶_
         </button>
+        {onBack && (
+          <button className="icon-btn" onClick={onBack} title="Back">
+            ←
+          </button>
+        )}
         <button className="icon-btn" onClick={goUp} title="Parent folder">↑</button>
         <button
           className="icon-btn"

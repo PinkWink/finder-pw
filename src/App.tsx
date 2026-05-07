@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import Pane from "./components/Pane";
 import Toolbar from "./components/Toolbar";
+import TreeSidebar from "./components/TreeSidebar";
 import { LayoutMode, PaneConfig } from "./types";
 
 const DEFAULT_COLORS = ["#4F8FCB", "#E07B5C", "#6FB36F", "#C58FCB"];
 const STALE_DEFAULT = /^Pane [A-D]$/;
+const HISTORY_LIMIT = 20;
 
 function loadPanes(home: string): PaneConfig[] {
   const saved = localStorage.getItem("finder-panes");
@@ -15,6 +17,7 @@ function loadPanes(home: string): PaneConfig[] {
       return parsed.map((p) => ({
         ...p,
         name: STALE_DEFAULT.test(p.name) ? "" : p.name,
+        history: p.history ?? [],
       }));
     } catch {}
   }
@@ -25,12 +28,22 @@ function loadPanes(home: string): PaneConfig[] {
     path: home,
     showHidden: false,
     showGit: false,
+    history: [],
   }));
 }
 
 function loadLayout(): LayoutMode {
   const saved = localStorage.getItem("finder-layout") as LayoutMode | null;
   return saved ?? "quad";
+}
+
+function loadShowTree(): boolean {
+  return localStorage.getItem("finder-show-tree") === "1";
+}
+
+function loadActiveIndex(): number {
+  const v = parseInt(localStorage.getItem("finder-active-pane") ?? "0", 10);
+  return Number.isFinite(v) && v >= 0 && v < 4 ? v : 0;
 }
 
 function visibleCountFor(layout: LayoutMode): number {
@@ -51,6 +64,8 @@ function visibleCountFor(layout: LayoutMode): number {
 export default function App() {
   const [panes, setPanes] = useState<PaneConfig[]>([]);
   const [layout, setLayout] = useState<LayoutMode>(loadLayout());
+  const [showTree, setShowTree] = useState<boolean>(loadShowTree());
+  const [activeIndex, setActiveIndex] = useState<number>(loadActiveIndex());
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -73,25 +88,82 @@ export default function App() {
     localStorage.setItem("finder-layout", layout);
   }, [layout]);
 
+  useEffect(() => {
+    localStorage.setItem("finder-show-tree", showTree ? "1" : "0");
+  }, [showTree]);
+
+  useEffect(() => {
+    localStorage.setItem("finder-active-pane", String(activeIndex));
+  }, [activeIndex]);
+
   function updatePane(idx: number, patch: Partial<PaneConfig>) {
-    setPanes((p) => p.map((pane, i) => (i === idx ? { ...pane, ...patch } : pane)));
+    setPanes((p) =>
+      p.map((pane, i) => {
+        if (i !== idx) return pane;
+        let history = pane.history ?? [];
+        if (patch.path !== undefined && patch.path !== pane.path) {
+          history = [pane.path, ...history.filter((h) => h !== pane.path)].slice(
+            0,
+            HISTORY_LIMIT
+          );
+        }
+        return { ...pane, ...patch, history };
+      })
+    );
+  }
+
+  function goBack(idx: number) {
+    setPanes((p) =>
+      p.map((pane, i) => {
+        if (i !== idx) return pane;
+        const history = pane.history ?? [];
+        if (history.length === 0) return pane;
+        const [prev, ...rest] = history;
+        return { ...pane, path: prev, history: rest };
+      })
+    );
   }
 
   if (!ready) return <div className="loading">Loading…</div>;
 
   const count = visibleCountFor(layout);
+  const visiblePanes = panes.slice(0, count);
+  const safeActive = Math.min(activeIndex, count - 1);
+  const activePane = visiblePanes[safeActive];
 
   return (
     <div className="app">
-      <Toolbar layout={layout} onLayoutChange={setLayout} />
-      <div className={`pane-grid layout-${layout}`}>
-        {panes.slice(0, count).map((pane, idx) => (
-          <Pane
-            key={pane.id}
-            config={pane}
-            onUpdate={(patch) => updatePane(idx, patch)}
+      <Toolbar
+        layout={layout}
+        onLayoutChange={setLayout}
+        showTree={showTree}
+        onToggleTree={() => setShowTree((v) => !v)}
+      />
+      <div className="main">
+        {showTree && activePane && (
+          <TreeSidebar
+            activePath={activePane.path}
+            showHidden={activePane.showHidden ?? false}
+            accentColor={activePane.color}
+            onSelect={(path) => updatePane(safeActive, { path })}
           />
-        ))}
+        )}
+        <div className={`pane-grid layout-${layout}`}>
+          {visiblePanes.map((pane, idx) => (
+            <Pane
+              key={pane.id}
+              config={pane}
+              isActive={idx === safeActive}
+              onActivate={() => setActiveIndex(idx)}
+              onUpdate={(patch) => updatePane(idx, patch)}
+              onBack={
+                (pane.history ?? []).length > 0
+                  ? () => goBack(idx)
+                  : undefined
+              }
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

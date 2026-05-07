@@ -32,7 +32,7 @@ fi
 SUITE="stable"
 COMPONENT="main"
 ARCH="amd64"
-PKG="finder"
+PKG="pwfinder"
 
 POOL_DIR="$REPO_DIR/pool/$COMPONENT/${PKG:0:1}/$PKG"
 DISTS_DIR="$REPO_DIR/dists/$SUITE"
@@ -64,14 +64,14 @@ rm -f "$DISTS_DIR/Release" "$DISTS_DIR/Release.gpg" "$DISTS_DIR/InRelease"
 
 {
   cat <<EOF
-Origin: Finder
-Label: Finder
+Origin: PWFinder
+Label: PWFinder
 Suite: $SUITE
 Codename: $SUITE
 Version: 1.0
 Architectures: $ARCH
 Components: $COMPONENT
-Description: Finder file explorer apt repository
+Description: PWFinder file explorer apt repository
 Date: $(date -Ru)
 EOF
 
@@ -113,14 +113,14 @@ gpg --armor --export "$GPG_KEY_ID" > "$REPO_DIR/pubkey.gpg"
 cat > "$REPO_DIR/index.html" <<'EOF'
 <!doctype html>
 <meta charset="utf-8">
-<title>Finder APT repo</title>
+<title>PWFinder APT repo</title>
 <style>body{font-family:system-ui,sans-serif;max-width:680px;margin:48px auto;padding:0 16px;color:#2c3138;line-height:1.6}code{background:#f1f4f7;padding:2px 6px;border-radius:4px;font-family:ui-monospace,monospace}pre{background:#f1f4f7;padding:12px 16px;border-radius:6px;overflow:auto}h1{margin-bottom:4px}h2{margin-top:32px}</style>
-<h1>Finder APT repository</h1>
+<h1>PWFinder APT repository</h1>
 <p>Add this repo to your Ubuntu/Debian system:</p>
-<pre><code>curl -fsSL https://__PAGE_URL__/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/finder.gpg
-echo "deb [signed-by=/usr/share/keyrings/finder.gpg] https://__PAGE_URL__ stable main" | sudo tee /etc/apt/sources.list.d/finder.list
+<pre><code>curl -fsSL https://__PAGE_URL__/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
+echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://__PAGE_URL__ stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install finder</code></pre>
+sudo apt install pwfinder</code></pre>
 <p>See the <a href="https://github.com/__GH_REPO__">GitHub repo</a> for source.</p>
 EOF
 

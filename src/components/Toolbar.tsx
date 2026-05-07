@@ -3,6 +3,8 @@ import { LayoutMode } from "../types";
 interface Props {
   layout: LayoutMode;
   onLayoutChange: (l: LayoutMode) => void;
+  showTree: boolean;
+  onToggleTree: () => void;
 }
 
 const LAYOUTS: { mode: LayoutMode; label: string; icon: string }[] = [
@@ -14,10 +16,24 @@ const LAYOUTS: { mode: LayoutMode; label: string; icon: string }[] = [
   { mode: "quad", label: "Quad", icon: "▦" },
 ];
 
-export default function Toolbar({ layout, onLayoutChange }: Props) {
+export default function Toolbar({
+  layout,
+  onLayoutChange,
+  showTree,
+  onToggleTree,
+}: Props) {
   return (
     <div className="toolbar">
-      <div className="toolbar-title">Finder</div>
+      <div className="toolbar-title">PWFinder</div>
+      <button
+        className={`layout-btn tree-btn ${showTree ? "active" : ""}`}
+        onClick={onToggleTree}
+        title="Toggle folder tree sidebar"
+      >
+        <span className="layout-icon">⌘</span>
+        <span className="layout-label">Tree</span>
+      </button>
+      <div className="toolbar-sep" />
       <div className="layout-buttons">
         {LAYOUTS.map((l) => (
           <button

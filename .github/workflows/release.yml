@@ -65,6 +65,9 @@ jobs:
       - name: Initialize empty repo if first run
         run: mkdir -p apt-repo
 
+      - name: Drop stale 'finder' packages (post-rename to PWFinder)
+        run: rm -rf apt-repo/pool/main/f || true
+
       - name: Import GPG signing key
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}

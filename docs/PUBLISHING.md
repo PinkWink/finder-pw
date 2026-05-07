@@ -15,7 +15,7 @@ When you push a `v*` tag, GitHub Actions will:
 On your local machine:
 
 ```bash
-gpg --quick-generate-key "Finder Repo <you@example.com>" rsa4096 sign 2y
+gpg --quick-generate-key "PWFinder Repo <you@example.com>" rsa4096 sign 2y
 ```
 
 Capture the long key ID:
@@ -28,7 +28,7 @@ gpg --list-secret-keys --keyid-format=long "you@example.com"
 Export the **secret** key (this is the one that signs releases — keep it private):
 
 ```bash
-gpg --armor --export-secret-keys <KEY_ID> > finder-signing.key.asc
+gpg --armor --export-secret-keys <KEY_ID> > pwfinder-signing.key.asc
 ```
 
 ### 2. Add GitHub secrets
@@ -38,10 +38,10 @@ In your repo: **Settings → Secrets and variables → Actions → New repositor
 | Name | Value |
 |---|---|
 | `GPG_KEY_ID` | the long key ID from step 1 |
-| `GPG_PRIVATE_KEY` | the entire contents of `finder-signing.key.asc` |
+| `GPG_PRIVATE_KEY` | the entire contents of `pwfinder-signing.key.asc` |
 | `GPG_PASSPHRASE` | the passphrase if you set one (otherwise omit) |
 
-After adding, **delete the local `finder-signing.key.asc` file** (or store it somewhere safe — you'll need it if you ever migrate).
+After adding, **delete the local `pwfinder-signing.key.asc` file** (or store it somewhere safe — you'll need it if you ever migrate).
 
 ### 3. Enable GitHub Pages
 
@@ -88,10 +88,10 @@ GitHub Actions will:
 (This is also documented in `index.html` of the published Pages site.)
 
 ```bash
-curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/finder.gpg
-echo "deb [signed-by=/usr/share/keyrings/finder.gpg] https://pinkwink.github.io/finder-pw stable main" | sudo tee /etc/apt/sources.list.d/finder.list
+curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
+echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://pinkwink.github.io/finder-pw stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install finder
+sudo apt install pwfinder
 ```
 
 After this, `sudo apt upgrade` will pick up future releases automatically.
@@ -104,24 +104,24 @@ You can build the repo locally before pushing to GitHub:
 sudo apt install dpkg-dev gnupg
 export GPG_KEY_ID=<your-key-id>
 npm run tauri build
-./scripts/build-apt-repo.sh /tmp/finder-repo \
+./scripts/build-apt-repo.sh /tmp/pwfinder-repo \
   src-tauri/target/release/bundle/deb/*.deb
 
 # Inspect
-tree /tmp/finder-repo
-cat /tmp/finder-repo/dists/stable/Release
+tree /tmp/pwfinder-repo
+cat /tmp/pwfinder-repo/dists/stable/Release
 ```
 
 You can also test the install on a throwaway VM by serving it:
 
 ```bash
-cd /tmp/finder-repo
+cd /tmp/pwfinder-repo
 python3 -m http.server 8080
 # In another shell / VM:
-curl -fsSL http://localhost:8080/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/finder.gpg
-echo "deb [signed-by=/usr/share/keyrings/finder.gpg] http://localhost:8080 stable main" | sudo tee /etc/apt/sources.list.d/finder.list
+curl -fsSL http://localhost:8080/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
+echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] http://localhost:8080 stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
-sudo apt install finder
+sudo apt install pwfinder
 ```
 
 ## Troubleshooting
@@ -140,4 +140,4 @@ The key has a passphrase but `--pinentry-mode loopback` wasn't applied. Make sur
 
 **Want to remove an old version**
 
-Edit `pool/main/f/finder/` on the `gh-pages` branch, delete the unwanted `.deb`, then re-run the workflow with `workflow_dispatch` (no new tag needed) — the script will regenerate `Packages` without the deleted version.
+Edit `pool/main/p/pwfinder/` on the `gh-pages` branch, delete the unwanted `.deb`, then re-run the workflow with `workflow_dispatch` (no new tag needed) — the script will regenerate `Packages` without the deleted version.
