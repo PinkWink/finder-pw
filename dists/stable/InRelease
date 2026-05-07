@@ -9,26 +9,26 @@ Version: 1.0
 Architectures: amd64
 Components: main
 Description: Finder file explorer apt repository
-Date: Thu, 07 May 2026 06:39:50 +0000
+Date: Thu, 07 May 2026 07:48:19 +0000
 MD5Sum:
- 4b89bdade0c7dbba5096bbc06f9a747b              842 main/binary-amd64/Packages
- 058796459a36bababb2739610db38762              536 main/binary-amd64/Packages.gz
+ f836ec74403db73630ff8cad1f77171b             1651 main/binary-amd64/Packages
+ 44d9be0ec45316d7ba7fb7950229e77d              665 main/binary-amd64/Packages.gz
 SHA256:
- 08eda5602ae449dca68621962ef3efbbddebde6e9e5b25f6804e9bbc5c5e8da2              842 main/binary-amd64/Packages
- 37a26be569755a1d06bc8d5e71b6f1a1e64496703331e460b28c278c9d8c5dcf              536 main/binary-amd64/Packages.gz
+ dc6e1e54dfa9de4d0c4bd01a535f09bd3026319ea703b751a398553d5bd5d0d8             1651 main/binary-amd64/Packages
+ 15d33df4605b7aba9de93cb2decd89c40644838d45a4faf03d286b18648bc1dd              665 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn8M7YACgkQNBFjd6+C
-K0jaDg//eGgQoZKmdrF7xvsOdwZP+lR0+AnFV1CejqLUzOPMH02MyX7kqPWBJokU
-8NmrepRQIEdtok6qj23KcSAJDF8NTQhW+siVt2NhuBWmkQxWCe9zmPGDz8vM/Yv2
-6bFDS1hNwaGAhUdpqrDyh6GBKoATmlCwGm8UwiT+F2dMwhWznHB8c/m2T7gRIe3R
-0MDtaTrMV9ExGYc0NF4suOi7MNPvVZJ1LRU8sx52qvdN6Fcci2zThDjzW59oC9Wh
-osdfvJdnrHsrAPBKj7PwjCarkAmBshWTPsw7JPCMJ0UP4OpCIZpzbmvYEHnM7B23
-TNA7IYDlEf1CG1cD6lhuRQzMQRgsN05y4BdyX7GstC9LiehaCLae3EbNs5MXy9pi
-gmbddi8/3AiHwzxC+AuKMjyCKF8gd+32q5evpjbxup6B+7O6019koABZq7jmi34x
-fm1j+4hRvvZhQgEubLzrEA94nP99y+KHLk8dyWNGp669l0gew3a2hMEmqtaqBgq+
-JkyPJp/HypDA1e8dyos8hbhyqTlpDeTyDjfk5LioP/j30mhzNmjT16chThWN4m4p
-y2cG6ova2NZTJMi4bPliRz3PUvqiJc/BYdne5oejWjua0Enm3ha+GKMfrOEKg/Ys
-coHp13BdxTDGDRggKXjviUpSDb30nBxhmQuHFU/8iMNZGAHvewg=
-=L8FM
+iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn8Q8MACgkQNBFjd6+C
+K0gTOQ//Y7zIQ2/VjUedqHe14LO1Q6rpi3H9/quG7wON8yx4bsIgENfJ5wRlt54F
+CJqKWAOO7o3hl6cbCsHhcQtJQ9Z6rnlvnsDbCkInHzKmHz/IiaQd3RQJNIhTJCKS
+rxdLLcsWmiB0gZacI27DVO3D8qTT9A8Ctrm564fDa7VicA3QqWgzluNgJJqwY8BE
+Oy7Edp9bsHwhqhn6m6Qx46ZxSaWq3SHsyD0CxwYWN4P2d2dUuhWKX6qBlsfpdKAu
+kgE5zw0robeeHfu7aFCZSI6ggcVfNGGDG0sUHqWkiLPIEoQmzSv250cPL2IETITh
+OSlPhBnG3pobHqzkXf8hQSkRJKmaF8z3iItchO+XY3vP86L1A9mwT4ucIyZUlaA6
+46Ik8ZNUpO/H3mCJlU5b9UU9J+p0Sd95D+KSVf/ztPMLcgEgtp6fhx3EUeE5W+cP
+vLqS/xjS/uSjN3Tm3tnrmvN8zC2n+11JtycjCU+cz9c9ta+QDv0B/pOa/nRHgfsu
+L50NhM4aA0pL//8OQBIepPWeNQcfx46So6aFWYat5hJM3oXIEtpmPlYQHN2Bg+5R
+8xj7sMWNLywbJwPIPCG8HTQw0fMLvLylYsI1tqXc64+PTo4KKeo5SZDu/GuXO37F
+U9aNpw0cIxr5wBvk05Jv4j9QJSLNNMHtwB9alkr+FJX2avZ7L2k=
+=bOhe
 -----END PGP SIGNATURE-----
