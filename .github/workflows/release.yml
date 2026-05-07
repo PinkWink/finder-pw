@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Tauri build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            pkg-config \
+            dpkg-dev \
+            gnupg
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build Tauri (.deb + AppImage)
+        run: npm run tauri build
+
+      - name: Upload artifacts to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/appimage/*.AppImage
+          generate_release_notes: true
+
+      - name: Checkout existing apt-repo (gh-pages branch)
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: apt-repo
+        continue-on-error: true
+
+      - name: Initialize empty repo if first run
+        run: mkdir -p apt-repo
+
+      - name: Import GPG signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys
+
+      - name: Build/update APT repo
+        env:
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          ./scripts/build-apt-repo.sh apt-repo \
+            src-tauri/target/release/bundle/deb/*.deb
+
+      - name: Replace placeholders in index.html
+        run: |
+          PAGE_URL="${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          GH_REPO="${{ github.repository }}"
+          sed -i "s|__PAGE_URL__|$PAGE_URL|g; s|__GH_REPO__|$GH_REPO|g" apt-repo/index.html
+
+      - name: Publish apt-repo to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apt-repo
+          publish_branch: gh-pages
+          keep_files: false
+          commit_message: "Publish ${{ github.ref_name }}"

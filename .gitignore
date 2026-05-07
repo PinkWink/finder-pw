@@ -1,0 +1,22 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Claude Code local settings
+.claude/
+
+# Rust / Tauri
+src-tauri/target
+src-tauri/gen
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

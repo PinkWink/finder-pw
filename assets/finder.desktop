@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Finder
+GenericName=File Explorer
+Comment=4-split file explorer with per-pane color, git status, and terminal
+Exec=__BIN__ %F
+Icon=__ICON__
+Terminal=false
+Categories=Utility;FileManager;
+Keywords=file;explorer;split;pane;
+StartupNotify=true
+StartupWMClass=Finder
