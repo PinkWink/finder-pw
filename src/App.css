@@ -513,9 +513,29 @@ button {
 .file-row:hover {
   background: var(--hover);
 }
+.file-row.selected {
+  background: color-mix(in srgb, var(--pane-color, var(--accent)) 22%, transparent);
+}
+.file-row.selected:hover {
+  background: color-mix(in srgb, var(--pane-color, var(--accent)) 30%, transparent);
+}
 .file-row.dir .file-name {
   color: var(--accent);
   font-weight: 500;
+}
+.selection-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  background: var(--pane-color, var(--accent));
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 10px;
+  font-family: var(--font-mono);
 }
 .file-icon {
   font-size: 15px;

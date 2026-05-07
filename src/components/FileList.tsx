@@ -2,7 +2,10 @@ import { FileEntry } from "../types";
 
 interface Props {
   entries: FileEntry[];
+  selected: Set<string>;
   onActivate: (entry: FileEntry) => void;
+  onSelectClick: (ev: React.MouseEvent, entry: FileEntry) => void;
+  onDragStart: (ev: React.DragEvent, entry: FileEntry) => void;
   onContextMenu?: (ev: React.MouseEvent, entry: FileEntry) => void;
 }
 
@@ -23,7 +26,14 @@ function formatDate(ts: number): string {
   );
 }
 
-export default function FileList({ entries, onActivate, onContextMenu }: Props) {
+export default function FileList({
+  entries,
+  selected,
+  onActivate,
+  onSelectClick,
+  onDragStart,
+  onContextMenu,
+}: Props) {
   if (entries.length === 0) {
     return <div className="status-msg muted">Empty</div>;
   }
@@ -32,12 +42,12 @@ export default function FileList({ entries, onActivate, onContextMenu }: Props) 
       {entries.map((e) => (
         <div
           key={e.path}
-          className={`file-row ${e.is_dir ? "dir" : "file"}`}
+          className={`file-row ${e.is_dir ? "dir" : "file"} ${selected.has(e.path) ? "selected" : ""}`}
           draggable
-          onDragStart={(ev) => {
-            ev.dataTransfer.setData("application/finder-path", e.path);
-            ev.dataTransfer.setData("text/plain", e.path);
-            ev.dataTransfer.effectAllowed = "copy";
+          onDragStart={(ev) => onDragStart(ev, e)}
+          onClick={(ev) => {
+            ev.stopPropagation();
+            onSelectClick(ev, e);
           }}
           onDoubleClick={() => onActivate(e)}
           onContextMenu={(ev) => {

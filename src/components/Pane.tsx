@@ -1,4 +1,10 @@
-import { Fragment, useCallback, useEffect, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { FileEntry, GitStatus, PaneConfig } from "../types";
 import FileList from "./FileList";
@@ -32,19 +38,25 @@ function basename(path: string): string {
   return parts[parts.length - 1] || "/";
 }
 
-export default function Pane({ config, isActive, onActivate, onUpdate, onBack }: Props) {
+const DRAG_MIME = "application/finder-paths";
+
+export default function Pane({
+  config,
+  isActive,
+  onActivate,
+  onUpdate,
+  onBack,
+}: Props) {
   const [entries, setEntries] = useState<FileEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [dropMsg, setDropMsg] = useState<string | null>(null);
-  const [ctxMenu, setCtxMenu] = useState<{
-    x: number;
-    y: number;
-    entry: FileEntry;
-  } | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
   const [git, setGit] = useState<GitStatus | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [anchor, setAnchor] = useState<string | null>(null);
 
   const loadDir = useCallback(async (path: string) => {
     setLoading(true);
@@ -63,6 +75,8 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
 
   useEffect(() => {
     loadDir(config.path);
+    setSelected(new Set());
+    setAnchor(null);
   }, [config.path, loadDir]);
 
   useEffect(() => {
@@ -82,6 +96,14 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
       cancelled = true;
     };
   }, [config.path, config.showGit, entries]);
+
+  const visibleEntries = useMemo(
+    () =>
+      config.showHidden
+        ? entries
+        : entries.filter((e) => !e.name.startsWith(".")),
+    [entries, config.showHidden]
+  );
 
   const goUp = async () => {
     try {
@@ -104,15 +126,104 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
     }
   };
 
-  const showToast = (msg: string) => {
+  const showToast = useCallback((msg: string) => {
     setDropMsg(msg);
     setTimeout(() => setDropMsg(null), 2200);
+  }, []);
+
+  const handleSelectClick = (ev: React.MouseEvent, entry: FileEntry) => {
+    if (ev.shiftKey && anchor) {
+      const i1 = visibleEntries.findIndex((e) => e.path === anchor);
+      const i2 = visibleEntries.findIndex((e) => e.path === entry.path);
+      if (i1 >= 0 && i2 >= 0) {
+        const [s, e] = i1 < i2 ? [i1, i2] : [i2, i1];
+        setSelected(
+          new Set(visibleEntries.slice(s, e + 1).map((x) => x.path))
+        );
+      }
+    } else if (ev.ctrlKey || ev.metaKey) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(entry.path)) next.delete(entry.path);
+        else next.add(entry.path);
+        return next;
+      });
+      setAnchor(entry.path);
+    } else {
+      setSelected(new Set([entry.path]));
+      setAnchor(entry.path);
+    }
   };
+
+  const clearSelection = () => {
+    setSelected(new Set());
+    setAnchor(null);
+  };
+
+  const deleteSelected = useCallback(async () => {
+    const paths = Array.from(selected);
+    if (paths.length === 0) return;
+    const msg =
+      paths.length === 1
+        ? `Delete "${basename(paths[0])}"?`
+        : `Delete ${paths.length} items?`;
+    if (!window.confirm(msg)) return;
+    let deleted = 0;
+    let lastError: string | null = null;
+    for (const p of paths) {
+      try {
+        await invoke("delete_path", { path: p });
+        deleted++;
+      } catch (e) {
+        lastError = typeof e === "string" ? e : "Delete failed";
+      }
+    }
+    showToast(deleted === 1 ? "Deleted: 1 item" : `Deleted: ${deleted} items`);
+    if (lastError && deleted < paths.length) setError(lastError);
+    setSelected(new Set());
+    setAnchor(null);
+    loadDir(config.path);
+  }, [selected, loadDir, config.path, showToast]);
+
+  // Keyboard shortcuts on the active pane
+  useEffect(() => {
+    if (!isActive) return;
+    const onKey = (ev: KeyboardEvent) => {
+      const target = ev.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+      )
+        return;
+
+      if ((ev.ctrlKey || ev.metaKey) && ev.key === "a") {
+        ev.preventDefault();
+        setSelected(new Set(visibleEntries.map((e) => e.path)));
+        return;
+      }
+      if (ev.key === "Escape") {
+        setSelected(new Set());
+        setAnchor(null);
+        return;
+      }
+      if (
+        (ev.key === "Delete" || ev.key === "Backspace") &&
+        selected.size > 0 &&
+        !ev.metaKey &&
+        !ev.ctrlKey
+      ) {
+        ev.preventDefault();
+        deleteSelected();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isActive, visibleEntries, selected, deleteSelected]);
 
   const headerStyle = { ["--pane-color" as never]: config.color } as React.CSSProperties;
 
   const handleDragOver = (ev: React.DragEvent) => {
-    if (ev.dataTransfer.types.includes("application/finder-path")) {
+    if (ev.dataTransfer.types.includes(DRAG_MIME)) {
       ev.preventDefault();
       ev.dataTransfer.dropEffect = "copy";
       if (!isDragOver) setIsDragOver(true);
@@ -128,22 +239,52 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
   const handleDrop = async (ev: React.DragEvent) => {
     ev.preventDefault();
     setIsDragOver(false);
-    const src = ev.dataTransfer.getData("application/finder-path");
-    if (!src) return;
-    const srcParent = src.replace(/\/[^/]+$/, "") || "/";
-    if (srcParent === config.path) return;
+    const data = ev.dataTransfer.getData(DRAG_MIME);
+    if (!data) return;
+    let paths: string[];
     try {
-      const created = await invoke<string>("copy_path", {
-        src,
-        dst_dir: config.path,
-      });
-      const name = created.split("/").pop() ?? created;
-      showToast(`Copied: ${name}`);
-      loadDir(config.path);
-    } catch (e: unknown) {
-      const msg = typeof e === "string" ? e : (e as Error)?.message ?? "Copy failed";
-      setError(msg);
+      paths = JSON.parse(data);
+    } catch {
+      return;
     }
+    let copied = 0;
+    let lastError: string | null = null;
+    let lastName = "";
+    for (const src of paths) {
+      const srcParent = src.replace(/\/[^/]+$/, "") || "/";
+      if (srcParent === config.path) continue;
+      try {
+        const created = await invoke<string>("copy_path", {
+          src,
+          dst_dir: config.path,
+        });
+        copied++;
+        lastName = created.split("/").pop() ?? created;
+      } catch (e: unknown) {
+        lastError = typeof e === "string" ? e : (e as Error)?.message ?? "Copy failed";
+      }
+    }
+    if (copied > 0) {
+      showToast(
+        copied === 1 ? `Copied: ${lastName}` : `Copied: ${copied} items`
+      );
+      loadDir(config.path);
+    }
+    if (lastError && copied === 0) setError(lastError);
+  };
+
+  const handleDragStart = (ev: React.DragEvent, entry: FileEntry) => {
+    let toDrag: string[];
+    if (selected.has(entry.path) && selected.size > 1) {
+      toDrag = Array.from(selected);
+    } else {
+      toDrag = [entry.path];
+      setSelected(new Set([entry.path]));
+      setAnchor(entry.path);
+    }
+    ev.dataTransfer.setData(DRAG_MIME, JSON.stringify(toDrag));
+    ev.dataTransfer.setData("text/plain", toDrag.join("\n"));
+    ev.dataTransfer.effectAllowed = "copy";
   };
 
   const openTerminal = async () => {
@@ -155,58 +296,66 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
     }
   };
 
-  const buildContextMenuItems = (entry: FileEntry): ContextMenuItem[] => [
-    {
-      label: entry.is_dir ? "Open" : "Open with default app",
-      onClick: () => handleEntryActivate(entry),
-    },
-    { label: "", onClick: () => {}, separator: true },
-    {
-      label: "Rename",
-      onClick: async () => {
-        const newName = window.prompt("New name:", entry.name);
-        if (!newName || newName === entry.name) return;
-        try {
-          await invoke("rename_path", {
-            path: entry.path,
-            new_name: newName,
-          });
-          showToast(`Renamed to ${newName}`);
-          loadDir(config.path);
-        } catch (e) {
-          const msg = typeof e === "string" ? e : "Rename failed";
-          setError(msg);
-        }
+  const buildContextMenuItems = (): ContextMenuItem[] => {
+    const paths = Array.from(selected);
+    const isMulti = paths.length > 1;
+    const single = paths[0];
+    const singleEntry = entries.find((e) => e.path === single);
+
+    return [
+      {
+        label: isMulti
+          ? `${paths.length} items selected`
+          : singleEntry?.is_dir
+            ? "Open"
+            : "Open with default app",
+        disabled: isMulti,
+        onClick: () => {
+          if (singleEntry) handleEntryActivate(singleEntry);
+        },
       },
-    },
-    {
-      label: "Copy path",
-      onClick: async () => {
-        try {
-          await navigator.clipboard.writeText(entry.path);
-          showToast("Path copied");
-        } catch {
-          showToast("Clipboard unavailable");
-        }
+      { label: "", onClick: () => {}, separator: true },
+      {
+        label: "Rename",
+        disabled: isMulti || !singleEntry,
+        onClick: async () => {
+          if (!singleEntry) return;
+          const newName = window.prompt("New name:", singleEntry.name);
+          if (!newName || newName === singleEntry.name) return;
+          try {
+            await invoke("rename_path", {
+              path: singleEntry.path,
+              new_name: newName,
+            });
+            showToast(`Renamed to ${newName}`);
+            loadDir(config.path);
+          } catch (e) {
+            const msg = typeof e === "string" ? e : "Rename failed";
+            setError(msg);
+          }
+        },
       },
-    },
-    { label: "", onClick: () => {}, separator: true },
-    {
-      label: "Move to trash",
-      destructive: true,
-      onClick: async () => {
-        if (!window.confirm(`Delete "${entry.name}"?`)) return;
-        try {
-          await invoke("delete_path", { path: entry.path });
-          showToast(`Deleted: ${entry.name}`);
-          loadDir(config.path);
-        } catch (e) {
-          const msg = typeof e === "string" ? e : "Delete failed";
-          setError(msg);
-        }
+      {
+        label: isMulti ? `Copy paths (${paths.length})` : "Copy path",
+        onClick: async () => {
+          try {
+            await navigator.clipboard.writeText(paths.join("\n"));
+            showToast(isMulti ? `${paths.length} paths copied` : "Path copied");
+          } catch {
+            showToast("Clipboard unavailable");
+          }
+        },
       },
-    },
-  ];
+      { label: "", onClick: () => {}, separator: true },
+      {
+        label: isMulti
+          ? `Move ${paths.length} items to trash`
+          : "Move to trash",
+        destructive: true,
+        onClick: deleteSelected,
+      },
+    ];
+  };
 
   return (
     <div
@@ -222,6 +371,11 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
         <div className="pane-name">
           {config.name?.trim() || basename(config.path)}
         </div>
+        {selected.size > 0 && (
+          <span className="selection-count" title="Selected items">
+            {selected.size}
+          </span>
+        )}
         <label className="hidden-toggle" title="Show hidden files">
           <input
             type="checkbox"
@@ -315,20 +469,23 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
           </Fragment>
         ))}
       </div>
-      <div className="pane-body">
+      <div className="pane-body" onClick={clearSelection}>
         {loading && <div className="status-msg">Loading...</div>}
         {error && <div className="status-msg error">{error}</div>}
         {!loading && !error && (
           <FileList
-            entries={
-              config.showHidden
-                ? entries
-                : entries.filter((e) => !e.name.startsWith("."))
-            }
+            entries={visibleEntries}
+            selected={selected}
             onActivate={handleEntryActivate}
-            onContextMenu={(ev, entry) =>
-              setCtxMenu({ x: ev.clientX, y: ev.clientY, entry })
-            }
+            onSelectClick={handleSelectClick}
+            onDragStart={handleDragStart}
+            onContextMenu={(ev, entry) => {
+              if (!selected.has(entry.path)) {
+                setSelected(new Set([entry.path]));
+                setAnchor(entry.path);
+              }
+              setCtxMenu({ x: ev.clientX, y: ev.clientY });
+            }}
           />
         )}
       </div>
@@ -337,7 +494,7 @@ export default function Pane({ config, isActive, onActivate, onUpdate, onBack }:
         <ContextMenu
           x={ctxMenu.x}
           y={ctxMenu.y}
-          items={buildContextMenuItems(ctxMenu.entry)}
+          items={buildContextMenuItems()}
           onClose={() => setCtxMenu(null)}
         />
       )}
