@@ -95,9 +95,9 @@ EOF
 } > "$RELEASE_FILE"
 
 echo "==> Signing Release"
-GPG_OPTS=(--default-key "$GPG_KEY_ID")
+GPG_OPTS=(--default-key "$GPG_KEY_ID" --batch --yes --pinentry-mode loopback)
 if [[ -n "${GPG_PASSPHRASE:-}" ]]; then
-  GPG_OPTS+=(--batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE")
+  GPG_OPTS+=(--passphrase "$GPG_PASSPHRASE")
 fi
 
 gpg "${GPG_OPTS[@]}" --detach-sign --armor \
