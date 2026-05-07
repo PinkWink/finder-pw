@@ -9,26 +9,26 @@ Version: 1.0
 Architectures: amd64
 Components: main
 Description: PWFinder file explorer apt repository
-Date: Thu, 07 May 2026 08:57:08 +0000
+Date: Thu, 07 May 2026 09:35:12 +0000
 MD5Sum:
- c00ff0bc90dde666a5e37a01ed362706             1648 main/binary-amd64/Packages
- 9916096b269c9b8fe36b0c88243995a3              674 main/binary-amd64/Packages.gz
+ d31e686a42521826c7f94448a4e06e3a             2472 main/binary-amd64/Packages
+ efb43074be42c719e85a530aea5e8368              788 main/binary-amd64/Packages.gz
 SHA256:
- 7c13bf454868d074f289cb34625e38885baaff7541138e03203d60c4948efe24             1648 main/binary-amd64/Packages
- 298ad2cb11b6c2616e5d352b6b7dde819b37bc0a62d714a3184a6b9647540be8              674 main/binary-amd64/Packages.gz
+ b2266cf88527c4cb9cf2fb5849034725004087edd7f85051950f61150c0e79d6             2472 main/binary-amd64/Packages
+ 042694e749b8b5be4b798c9249712a10b5997b7b5420383f4a225f478cd6919a              788 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn8U+QACgkQNBFjd6+C
-K0iRug//bRX5pm/2y/EhGPWkujrsIg7/9E6DQmDMISYOt/WRa4lksiFfOTbwjMpI
-ITARBpArHoDTGfZOKgJb+rPc9ISjIdSC6Vqy6TtSVEo2yZ17LvZT9RNJk60yEVx5
-6e0BQvjunqBoecyBgJtGSWmAxM/qarYcF9ERfGW/N/o4Nl2GsLBXZHszYOTym6Hz
-YAUqbZHYptu66k+ghujQiYeJAE++ZBXnGCResfGskKqE9xZJt9S6ssWDBUZDnSnd
-DKYDRRrXQvvNokajw03h0o0Hlsvxf51IqV/yeOnV5277KgW33xlEY+6oZbgEwhI7
-hpqoQs9pTLW+Q2T6s3CD2mpP27OQHFs8tlp2tNwc/w9FdbZ/4NZ/zIs97ZG5pqvT
-83AmFyX9uNuW+OjowBwR26h3i3AitKrZv951cMBC83kFux75TOp3rgmP9cAYLELy
-dx50/TT2r+ElsEXj12fKIq3b9nGLyX3YWV4ygDkWbXO/I+O2zslDduTgYDKuHWmi
-9/SMoNlpjyinvu+iOcCqQ+G2cvbjyrvr3dl75FPmAgZFDzSEIcni9Kwl+XBhSIIV
-HAsbbF29h5mMkxp7X7X4ZPzgx3F3c2AYvIunkT/JI303rkyMBFTzhQr3epWNY8Q5
-PT+YtFKp/2+GG1PC92e+OCwxz9+zfcFM+fbM924sy8HXddsC0UY=
-=gEum
+iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn8XNAACgkQNBFjd6+C
+K0jX7A//fxuwON34k7oZ0dLRpPPpCztsEPGkaDeXQ6LMP87+ni5pmmrfIdPha8Yu
+v87ZgUeRHy/Z+nQVr8whXHQ0SW5HJyMMQnbd4XUs3F3eXEB6VtvLUNyBNIFutYv2
+3pq3DsmZzZcbkJivmAC6wbqa7WsO2xVnnd88Bv3S69dUUEzZ0sD1JWzLvqF0Q/iI
+Jm7HgzcSw6T8bDN55Yc7+pU1c+8p7LHy716ijaLMurycZFL2hlmSx36Kf6fma1wm
+O8xfIuj00iWin30J8IdQCpo0JOHiarsd3qmm3b5y3Jj4PR9QGTygRDmZOVYFttF0
+QBkBJQQfaki8S6mXxNnVZvOOLem0jz6D7NlGmuZhUQbOwlXf+BZmSEpqfevglaNY
+UhBLISjePdPcsj5ynONXCUyWzjFhCKKY2lE4MndXkfEr2lL+ucmvNraNb5+8sMRW
+Z6ZkgDOlNUMB+c8RYiqwdHfoHGIr5GBF8xE1uDKOEgX6lO36kgghkZSxuoOGCG98
+W6MgSp/q5u/SWZGh8PkfbXQyCcvzI3PUSxjVrN2y4uIRbZOOIubO9qDymoY86Fvg
+fMNL+a88chqphMJM6zSy5IOmSFrvhDRgRPSbQAQJ43eCdfJVzNswB4vZiCR6xsEw
+8qOPbREINVxMi3hUd6rIQfkno/Bam3wJ6j7e6mGCCXDNRCfH6Zc=
+=Ya/c
 -----END PGP SIGNATURE-----
