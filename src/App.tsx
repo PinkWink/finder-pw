@@ -67,12 +67,14 @@ export default function App() {
   const [layout, setLayout] = useState<LayoutMode>(loadLayout());
   const [showTree, setShowTree] = useState<boolean>(loadShowTree());
   const [activeIndex, setActiveIndex] = useState<number>(loadActiveIndex());
+  const [home, setHome] = useState<string>("/");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     invoke<string>("get_home_dir")
-      .then((home) => {
-        setPanes(loadPanes(home));
+      .then((h) => {
+        setHome(h);
+        setPanes(loadPanes(h));
         setReady(true);
       })
       .catch(() => {
@@ -144,6 +146,7 @@ export default function App() {
         {showTree && activePane && (
           <TreeSidebar
             activePath={activePane.path}
+            homeDir={home}
             showHidden={activePane.showHidden ?? false}
             accentColor={activePane.color}
             onSelect={(path) => updatePane(safeActive, { path })}

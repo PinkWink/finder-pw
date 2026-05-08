@@ -380,6 +380,11 @@ export default function Pane({
       },
       { label: "", onClick: () => {}, separator: true },
       {
+        label: "Open terminal here",
+        onClick: openTerminal,
+      },
+      { label: "", onClick: () => {}, separator: true },
+      {
         label: isMulti
           ? `Move ${paths.length} items to trash`
           : "Move to trash",

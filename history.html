@@ -303,7 +303,7 @@
   <body>
     <div class="container">
       <header class="top">
-        <div class="eyebrow">PROJECT LOG · v0.3.0</div>
+        <div class="eyebrow">PROJECT LOG · v0.3.1</div>
         <h1>PWFinder — 4분할 파일 탐색기 작업 히스토리</h1>
         <div class="subtitle">
           우분투 기본 탐색기를 대체할, 화면을 최대 4분할로 나누고 각 패널에 색상·이름·git 상태·터미널·트리 사이드바를 둔 데스크톱 탐색기. <b>Tauri 2 + React 18</b> 기반으로 처음부터 빌드, GitHub 게시, APT 자동 배포까지 완료.
@@ -312,7 +312,7 @@
           <div><b>날짜</b> 2026-05-07 ~ 2026-05-08</div>
           <div><b>저장소</b> <a href="https://github.com/PinkWink/finder-pw">github.com/PinkWink/finder-pw</a></div>
           <div><b>APT</b> <a href="https://pinkwink.github.io/finder-pw/">pinkwink.github.io/finder-pw</a></div>
-          <div><b>최신</b> v0.3.0 <span class="pill green">ARM64 + UX</span></div>
+          <div><b>최신</b> v0.3.1 <span class="pill green">트리 UX patch</span></div>
         </div>
       </header>
 
@@ -858,6 +858,81 @@
 
       </div>
 
+      <h3 class="phase">K. 트리 사이드바 UX 다듬기 + v0.3.1</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-08 18:36 KST · 사용자</div>
+          <div class="turn-title">트리 기본 범위 + 터미널 + 활성 폴더 노출</div>
+          <div class="quote-box">왼쪽 트리구조에서는 유저가 특별히 클릭하지 않는한 home/pw/ 하위만 보이도록 ,
+pane에서 터미널 열기를 선택하면 해당 pane의 경로에서 터미널이 열리도록,
+트리구조 파일 네비게이션은 해당 pane의 폴더가 항상 드러나도록.</div>
+          <div class="card"><h4>지시 이해</h4>
+            <ul>
+              <li>(1) 좌측 트리는 기본적으로 사용자의 홈(<code class="inline">/home/pw</code>) 하위만 보여서 <code class="inline">/bin</code>·<code class="inline">/boot</code>·<code class="inline">/etc</code> 등 시스템 디렉토리로 어수선해지지 않아야 함. "특별히 클릭하지 않는 한"은 = 명시적으로 home 밖 경로로 나가지 않는 한.</li>
+              <li>(2) pane에서 "터미널 열기"를 선택했을 때 해당 pane의 경로에서 터미널이 열려야 함. 헤더 ▶_ 버튼은 이미 그렇게 동작 중이지만 "선택"이라는 단어는 우클릭 메뉴 의미를 함의 → 컨텍스트 메뉴에도 추가하기로 결정.</li>
+              <li>(3) 활성 pane이 가리키는 폴더는 트리에서 항상 펼쳐져 보여야 함. 기존엔 같은 path 재방문 시 expand가 한 번만 일어나서, 사용자가 접었다가 다시 돌아오면 자동으로 다시 펼쳐지지 않았음 — "항상"의 강조는 그 동작을 바꾸라는 뜻.</li>
+            </ul>
+          </div>
+          <div class="card"><h4>대응 (1) 트리 루트 동적화 — <code class="inline">App.tsx</code> · <code class="inline">TreeSidebar.tsx</code></h4>
+            <ul>
+              <li><code class="inline">App.tsx</code>에 <code class="inline">home</code> 상태 추가, <code class="inline">get_home_dir</code> 결과를 보관 → <code class="inline">TreeSidebar</code>에 <code class="inline">homeDir</code> prop 전달.</li>
+              <li><code class="inline">TreeSidebar</code> 내부에서 활성 path가 home 아래면 트리 루트를 <code class="inline">homeDir</code>로, 아니면 <code class="inline">"/"</code>로 <code class="inline">useMemo</code> 계산. <code class="inline">isUnder()</code> · <code class="inline">ancestorsOf(path, root)</code> 헬퍼로 루트 기반 조상 계산을 일반화.</li>
+              <li>결과: 첫 화면에서 <code class="inline">/home/pw</code>가 트리 루트, 시스템 디렉토리는 가려짐. pane이 <code class="inline">/etc</code> 등 home 밖으로 가면 트리 루트가 자동으로 <code class="inline">"/"</code>로 폴백되어 해당 폴더가 노출됨.</li>
+            </ul>
+          </div>
+          <div class="card"><h4>대응 (2) 활성 폴더 항상 펼침</h4>
+            <p>기존 <code class="inline">lastAutoExpand</code> ref 제거. <code class="inline">activePath</code> / <code class="inline">root</code> 변경 시 매번 조상들을 <code class="inline">expanded</code> Set에 add. 사용자가 명시적으로 토글했더라도 다음 pane 이동 시 다시 펼쳐짐 — "항상"에 부합. <code class="inline">setExpanded</code>가 같은 내용이어도 새 Set 참조이지만 useEffect 의존성에 <code class="inline">expanded</code>가 빠져있어 무한 루프는 발생하지 않음.</p>
+          </div>
+          <div class="card"><h4>대응 (3) 컨텍스트 메뉴에 터미널 열기 추가</h4>
+            <p><code class="inline">Pane.tsx</code>의 <code class="inline">buildContextMenuItems()</code>에 "Open terminal here" 항목을 separator와 함께 Move-to-trash 직전에 삽입. 콜백은 기존 <code class="inline">openTerminal()</code>(<code class="inline">invoke("open_terminal", { path: config.path })</code>) 재사용. 헤더 ▶_ 버튼은 그대로 유지 — 두 진입점 모두 같은 동작.</p>
+          </div>
+          <div class="card"><h4>검증</h4>
+            <p><code class="inline">npx tsc --noEmit</code> 무경고 통과. 사용자가 직접 실행 요청 → <code class="inline">npm run tauri dev</code> 백그라운드 기동, Vite ready 111 ms / Cargo Finished 7.10 s, 컴파일 에러 없이 창 띄움 확인.</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-08 18:53 KST · 사용자</div>
+          <div class="turn-title">실행 요청</div>
+          <div class="quote-box">실행해줘</div>
+          <div class="card"><h4>대응</h4>
+            <p><code class="inline">npm run tauri dev</code>를 백그라운드로 실행, 출력 파일을 폴링해 Vite ready · Cargo Finished · `target/debug/pwfinder` 실행 라인 확인. 이후 코드 수정도 같은 dev 프로세스의 HMR로 즉시 반영됨.</p>
+          </div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-08 18:55 KST · 사용자</div>
+          <div class="turn-title">활성 노드가 화면 밖 — 자동 스크롤 누락</div>
+          <div class="quote-box">지금 나는 이 스크린샷에서 오른쪽 make_confluence_page폴더를 선택했는데, 파일 네비게이션은 그게 안보여, 내가 선택한 폴더가 네비게이션에서도 선택은 되었지만 스크롤이 되지 않은거지</div>
+          <div class="card"><h4>지시 이해</h4>
+            <p>오른쪽 pane이 <code class="inline">/home/pw/isaac/make_confluence_page</code>로 갔고 트리에서 ancestor 펼침과 active 클래스 부여까지는 됐지만, 트리 사이드바 컨테이너의 <code class="inline">scrollTop</code>이 그대로라서 활성 노드가 뷰포트 아래로 밀려 보이지 않음. "선택은 되었지만 스크롤이 되지 않은거지"는 정확한 자기 진단 — 자동 스크롤만 추가하면 되는 상황.</p>
+          </div>
+          <div class="card"><h4>대응 — 자동 스크롤 추가</h4>
+            <ul>
+              <li>각 <code class="inline">tree-node</code> div에 <code class="inline">data-tree-path={path}</code> 속성 부여.</li>
+              <li><code class="inline">TreeSidebar</code>에 <code class="inline">bodyRef</code>(트리 본문 컨테이너) 추가.</li>
+              <li>새 <code class="inline">useEffect([activePath, expanded, childrenMap])</code>: <code class="inline">CSS.escape</code>로 안전한 셀렉터를 만들어 <code class="inline">querySelector</code>로 활성 엘리먼트 탐색. <code class="inline">offsetTop</code> · <code class="inline">offsetHeight</code> ↔ <code class="inline">scrollTop</code> · <code class="inline">clientHeight</code> 비교 → 화면 밖일 때만 <code class="inline">scrollIntoView({ block: "nearest" })</code>.</li>
+              <li>이미 가시 영역 안이면 스크롤 무동작 → 활성 pane을 단순 클릭만 해도 시야가 점프하는 부작용 없음.</li>
+              <li>의존성에 <code class="inline">childrenMap</code> 포함 — 비동기 폴더 로딩이 끝나 활성 노드가 비로소 DOM에 그려진 직후의 시점도 잡힘.</li>
+            </ul>
+          </div>
+          <div class="card"><h4>검증</h4>
+            <p><code class="inline">npx tsc --noEmit</code> 통과. dev 서버에 HMR로 즉시 반영(<code class="inline">[vite] hmr update /src/components/TreeSidebar.tsx</code> 5회 라인 확인).</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-08 18:57 KST · 사용자</div>
+          <div class="turn-title">history.html 갱신</div>
+          <div class="quote-box">좋아. history.html 정리하고, 업데이트 해줘</div>
+          <div class="card"><h4>대응</h4>
+            <p>본 phase K 섹션 추가, 세션 종료 노트에 4차 세션 항목, 로드맵 UX 항목에 ✅ 표시. 이어서 v0.3.1 patch로 묶기 결정 → 4개 파일 버전 번프(<code class="inline">package.json</code>·<code class="inline">package-lock.json</code>·<code class="inline">src-tauri/Cargo.toml</code>·<code class="inline">src-tauri/tauri.conf.json</code>) + <code class="inline">cargo check</code>로 Cargo.lock 갱신, history.html 헤더·릴리스 표 동기화, 단일 커밋·태그 후 푸시.</p>
+          </div>
+        </div>
+
+      </div>
+
       <h2 class="section">최종 산출물</h2>
 
       <div class="grid">
@@ -919,7 +994,8 @@ sudo apt install pw-finder</pre>
           <tr><td>v0.1.2</td><td>2026-05-07 17:00</td><td>PWFinder 리네임 + Tree 사이드바 + Active pane + History + Window state 복원</td><td>Linux x86_64</td></tr>
           <tr><td>v0.2.0</td><td>2026-05-07 17:45</td><td>macOS 포팅 (.dmg arm64), Rust 분기 컴파일, matrix CI</td><td>Linux x86_64 + macOS arm64</td></tr>
           <tr><td>v0.2.1</td><td>2026-05-07 (후속)</td><td>다중 선택(Ctrl/Cmd-클릭 토글, Shift 범위), 일괄 드래그·삭제·우클릭</td><td>Linux x86_64 + macOS arm64</td></tr>
-          <tr><td><b>v0.3.0</b></td><td><b>2026-05-08</b></td><td><b>ARM64 Linux 멀티아키 apt repo</b>, 분할선 드래그 리사이즈, 컬럼 정렬(Name/Size/Modified), 파일명 말줄임</td><td><b>Linux x86_64 + arm64 + macOS arm64</b></td></tr>
+          <tr><td>v0.3.0</td><td>2026-05-08</td><td>ARM64 Linux 멀티아키 apt repo, 분할선 드래그 리사이즈, 컬럼 정렬(Name/Size/Modified), 파일명 말줄임</td><td>Linux x86_64 + arm64 + macOS arm64</td></tr>
+          <tr><td><b>v0.3.1</b></td><td><b>2026-05-08</b></td><td><b>트리 사이드바 기본 범위 home 한정 + 활성 폴더 자동 펼침·자동 스크롤, 우클릭 메뉴 "Open terminal here"</b></td><td><b>Linux x86_64 + arm64 + macOS arm64</b></td></tr>
         </table>
       </div>
 
@@ -931,6 +1007,8 @@ sudo apt install pw-finder</pre>
             <li>✅ 분할선 드래그로 패널 비율 조정 (v0.3.0)</li>
             <li>✅ 컬럼 정렬 — Name/Size/Modified 클릭 (v0.3.0)</li>
             <li>✅ 파일명 말줄임 (v0.3.0)</li>
+            <li>✅ 트리 기본 범위 home/pw 한정 + 활성 폴더 자동 펼침 · 자동 스크롤 (v0.3.1)</li>
+            <li>✅ pane 우클릭 컨텍스트 메뉴에 "Open terminal here" 추가 (v0.3.1)</li>
             <li>키보드 단축키 (Ctrl+1..6 레이아웃)</li>
             <li>패널 내 탭 다중 보유</li>
             <li>북마크/즐겨찾기</li>
@@ -978,6 +1056,9 @@ sudo apt install pw-finder</pre>
         </p>
         <p>
           3차 세션(2026-05-08, 약 1시간) — Parallels Apple Silicon 우분투의 ARM64 호환을 시작점으로 GitHub Actions 멀티아키 매트릭스 + apt repo 멀티아키화. 같은 묶음으로 분할선 드래그 리사이즈, 컬럼 정렬, 파일명 말줄임을 추가하고 v0.3.0 minor 릴리스로 묶음.
+        </p>
+        <p>
+          4차 세션(2026-05-08 18:36 ~ 19:10, ~35분, v0.3.1 patch) — 트리 사이드바 기본 범위를 사용자 홈으로 한정해 시스템 디렉토리 노이즈 제거, 활성 pane 폴더가 트리에서 항상 펼쳐지고 자동 스크롤로 가시화되도록 수정, pane 우클릭 컨텍스트 메뉴에 "Open terminal here" 추가. 코드 변경은 <code class="inline">App.tsx</code> · <code class="inline">TreeSidebar.tsx</code> · <code class="inline">Pane.tsx</code> 3개 파일에 국한. 같은 묶음으로 v0.3.1 patch 릴리스 태그.
         </p>
         <p>
           <b>다음 세션 후보 작업</b>: macOS 코드사이닝 + 노터라이제이션 자동화, Universal 바이너리(Intel 호환), Homebrew tap 셋업, Node 24로 Actions 마이그레이션, 키보드 단축키(Ctrl+1..6), 패널 내 탭, 인-패널 검색.

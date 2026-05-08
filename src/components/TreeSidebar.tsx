@@ -4,6 +4,7 @@ import { FileEntry } from "../types";
 
 interface Props {
   activePath: string;
+  homeDir: string;
   showHidden: boolean;
   accentColor: string;
   onSelect: (path: string) => void;
@@ -15,11 +16,18 @@ function basename(path: string): string {
   return parts[parts.length - 1] || "/";
 }
 
-function ancestorsOf(path: string): string[] {
-  const out: string[] = ["/"];
-  if (!path.startsWith("/") || path === "/") return out;
-  const parts = path.split("/").filter(Boolean);
-  let acc = "";
+function isUnder(path: string, root: string): boolean {
+  if (path === root) return true;
+  const prefix = root === "/" ? "/" : root + "/";
+  return path.startsWith(prefix);
+}
+
+function ancestorsOf(path: string, root: string): string[] {
+  if (!isUnder(path, root) || path === root) return [root];
+  const rest = root === "/" ? path.slice(1) : path.slice(root.length + 1);
+  const parts = rest.split("/").filter(Boolean);
+  const out: string[] = [root];
+  let acc = root === "/" ? "" : root;
   for (const p of parts) {
     acc += "/" + p;
     out.push(acc);
@@ -30,6 +38,7 @@ function ancestorsOf(path: string): string[] {
 interface NodeProps {
   path: string;
   depth: number;
+  rootPath: string;
   activePath: string;
   showHidden: boolean;
   expanded: Set<string>;
@@ -42,6 +51,7 @@ interface NodeProps {
 function Node({
   path,
   depth,
+  rootPath,
   activePath,
   expanded,
   childrenMap,
@@ -54,7 +64,7 @@ function Node({
   const isLoading = loading.has(path);
   const kids = childrenMap[path];
   const isActive = path === activePath;
-  const label = depth === 0 ? path : basename(path);
+  const label = path === rootPath ? path : basename(path);
 
   const visibleKids = kids
     ? showHidden
@@ -69,6 +79,7 @@ function Node({
         style={{ paddingLeft: depth * 14 + 6 }}
         onClick={() => onSelect(path)}
         title={path}
+        data-tree-path={path}
       >
         <button
           className="tree-toggle"
@@ -88,6 +99,7 @@ function Node({
               key={c}
               path={c}
               depth={depth + 1}
+              rootPath={rootPath}
               activePath={activePath}
               showHidden={showHidden}
               expanded={expanded}
@@ -105,14 +117,22 @@ function Node({
 
 export default function TreeSidebar({
   activePath,
+  homeDir,
   showHidden,
   accentColor,
   onSelect,
 }: Props) {
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(["/"]));
+  const root = useMemo(() => {
+    if (homeDir && homeDir !== "/" && isUnder(activePath, homeDir)) {
+      return homeDir;
+    }
+    return "/";
+  }, [activePath, homeDir]);
+
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set([root]));
   const [childrenMap, setChildrenMap] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState<Set<string>>(new Set());
-  const lastAutoExpand = useRef<string>("");
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   const loadChildren = useCallback(
     async (path: string) => {
@@ -148,11 +168,10 @@ export default function TreeSidebar({
     [childrenMap, loadChildren]
   );
 
-  // Auto-expand to active path (and load any missing children along the way)
+  // Always reveal the active pane's folder by expanding root → activePath each
+  // time either the path or the root changes.
   useEffect(() => {
-    if (lastAutoExpand.current === activePath) return;
-    lastAutoExpand.current = activePath;
-    const ancestors = ancestorsOf(activePath);
+    const ancestors = ancestorsOf(activePath, root);
     setExpanded((s) => {
       const next = new Set(s);
       for (const a of ancestors) next.add(a);
@@ -161,12 +180,30 @@ export default function TreeSidebar({
     for (const a of ancestors) {
       if (childrenMap[a] === undefined) loadChildren(a);
     }
-  }, [activePath, childrenMap, loadChildren]);
+  }, [activePath, root, childrenMap, loadChildren]);
 
-  // Make sure root is loaded
+  // Scroll the active node into view once it's actually rendered (i.e. all
+  // ancestors have loaded their children). Re-runs when childrenMap changes
+  // so we catch the moment the active node first appears in the DOM.
   useEffect(() => {
-    if (childrenMap["/"] === undefined) loadChildren("/");
-  }, [childrenMap, loadChildren]);
+    const body = bodyRef.current;
+    if (!body) return;
+    const escaped =
+      typeof CSS !== "undefined" && "escape" in CSS
+        ? CSS.escape(activePath)
+        : activePath.replace(/"/g, '\\"');
+    const el = body.querySelector(
+      `[data-tree-path="${escaped}"]`
+    ) as HTMLElement | null;
+    if (!el) return;
+    const elTop = el.offsetTop;
+    const elBottom = elTop + el.offsetHeight;
+    const viewTop = body.scrollTop;
+    const viewBottom = viewTop + body.clientHeight;
+    if (elTop < viewTop || elBottom > viewBottom) {
+      el.scrollIntoView({ block: "nearest" });
+    }
+  }, [activePath, expanded, childrenMap]);
 
   const style = useMemo(
     () => ({ ["--tree-accent" as never]: accentColor } as React.CSSProperties),
@@ -176,10 +213,11 @@ export default function TreeSidebar({
   return (
     <div className="tree-sidebar" style={style}>
       <div className="tree-header">Folders</div>
-      <div className="tree-body">
+      <div className="tree-body" ref={bodyRef}>
         <Node
-          path="/"
+          path={root}
           depth={0}
+          rootPath={root}
           activePath={activePath}
           showHidden={showHidden}
           expanded={expanded}
