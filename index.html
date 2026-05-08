@@ -3,7 +3,7 @@
 <title>PWFinder APT repo</title>
 <style>body{font-family:system-ui,sans-serif;max-width:680px;margin:48px auto;padding:0 16px;color:#2c3138;line-height:1.6}code{background:#f1f4f7;padding:2px 6px;border-radius:4px;font-family:ui-monospace,monospace}pre{background:#f1f4f7;padding:12px 16px;border-radius:6px;overflow:auto}h1{margin-bottom:4px}h2{margin-top:32px}</style>
 <h1>PWFinder APT repository</h1>
-<p>Add this repo to your Ubuntu/Debian system:</p>
+<p>Add this repo to your Ubuntu/Debian system (amd64 and arm64 supported):</p>
 <pre><code>curl -fsSL https://PinkWink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
 echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://PinkWink.github.io/finder-pw stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
