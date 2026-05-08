@@ -303,34 +303,34 @@
   <body>
     <div class="container">
       <header class="top">
-        <div class="eyebrow">PROJECT LOG · v0.2.0</div>
+        <div class="eyebrow">PROJECT LOG · v0.3.0</div>
         <h1>PWFinder — 4분할 파일 탐색기 작업 히스토리</h1>
         <div class="subtitle">
           우분투 기본 탐색기를 대체할, 화면을 최대 4분할로 나누고 각 패널에 색상·이름·git 상태·터미널·트리 사이드바를 둔 데스크톱 탐색기. <b>Tauri 2 + React 18</b> 기반으로 처음부터 빌드, GitHub 게시, APT 자동 배포까지 완료.
         </div>
         <div class="meta">
-          <div><b>날짜</b> 2026-05-07 (단일 세션)</div>
+          <div><b>날짜</b> 2026-05-07 ~ 2026-05-08</div>
           <div><b>저장소</b> <a href="https://github.com/PinkWink/finder-pw">github.com/PinkWink/finder-pw</a></div>
           <div><b>APT</b> <a href="https://pinkwink.github.io/finder-pw/">pinkwink.github.io/finder-pw</a></div>
-          <div><b>최신</b> v0.2.0 <span class="pill green">macOS</span></div>
+          <div><b>최신</b> v0.3.0 <span class="pill green">ARM64 + UX</span></div>
         </div>
       </header>
 
       <h2 class="section">개요</h2>
       <div class="card">
         <p>
-          사용자(<b>PinkWink</b>)는 우분투 기본 파일 매니저(Nautilus)의 <b>화면 분할 미지원</b>이라는 한계를 해결하기 위해, 최대 4개의 분할창을 가지고 각 분할창에 색상·이름을 부여하고 git 상태·터미널 단축까지 통합된 탐색기 도구를 만들고자 했다. 단일 세션 내에서 <b>Rust·Tauri·React 셋업 → 기능 구현 → GitHub 게시 → 자체 APT 배포 → 두 차례 릴리스(v0.1.0 → v0.1.1 → v0.1.2)</b> 까지 진행됐다.
+          사용자(<b>PinkWink</b>)는 우분투 기본 파일 매니저(Nautilus)의 <b>화면 분할 미지원</b>이라는 한계를 해결하기 위해, 최대 4개의 분할창을 가지고 각 분할창에 색상·이름을 부여하고 git 상태·터미널 단축까지 통합된 탐색기 도구를 만들고자 했다. 첫 세션(2026-05-07)에 <b>Rust·Tauri·React 셋업 → 기능 구현 → GitHub 게시 → 자체 APT 배포 → 4번의 릴리스(v0.1.0 → v0.2.0)</b>까지 진행됐고, 이어서 v0.2.1(다중 선택)과 v0.3.0(ARM64 Linux 멀티아키 + 분할선 드래그 리사이즈 + 컬럼 정렬 + 파일명 말줄임)이 추가됐다.
         </p>
       </div>
 
       <h2 class="section">단계 요약</h2>
       <div class="summary-grid">
-        <div class="stat"><div class="label">총 사용자 지시</div><div class="value">~42</div></div>
-        <div class="stat"><div class="label">릴리스</div><div class="value">4 <span class="pill green">v0.1.0–0.2.0</span></div></div>
-        <div class="stat"><div class="label">지원 플랫폼</div><div class="value">2 <span class="pill">Linux + macOS</span></div></div>
-        <div class="stat"><div class="label">세션 시간</div><div class="value">~6h</div></div>
+        <div class="stat"><div class="label">총 사용자 지시</div><div class="value">~50</div></div>
+        <div class="stat"><div class="label">릴리스</div><div class="value">6 <span class="pill green">v0.1.0–0.3.0</span></div></div>
+        <div class="stat"><div class="label">지원 플랫폼·아키</div><div class="value">3 <span class="pill">Linux x86_64 / arm64 + macOS arm64</span></div></div>
+        <div class="stat"><div class="label">세션 시간</div><div class="value">~8h</div></div>
         <div class="stat"><div class="label">백엔드 명령</div><div class="value">10 <span class="pill">Rust</span></div></div>
-        <div class="stat"><div class="label">React 컴포넌트</div><div class="value">6</div></div>
+        <div class="stat"><div class="label">React 컴포넌트</div><div class="value">7</div></div>
       </div>
 
       <h2 class="section">시간순 대화 기록</h2>
@@ -765,9 +765,95 @@
 
         <div class="turn t-user minor">
           <div class="timestamp">2026-05-07 18:20 KST · 사용자</div>
-          <div class="turn-title">history.html 정리 후 마무리 (현재)</div>
+          <div class="turn-title">history.html 정리 후 마무리</div>
           <div class="quote-box">history.html 정리하고 마치자</div>
-          <div class="card"><h4>대응</h4><p>본 turn 추가 + macOS Gatekeeper 이슈 + 우회 방법 기록. 단일 세션 작업 종료.</p></div>
+          <div class="card"><h4>대응</h4><p>본 turn 추가 + macOS Gatekeeper 이슈 + 우회 방법 기록. 1차 세션 작업 종료.</p></div>
+        </div>
+
+      </div>
+
+      <h3 class="phase">I. 다중 선택 + v0.2.1</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-07 (후속) · 사용자</div>
+          <div class="turn-title">다중 선택 지원</div>
+          <div class="quote-box">파일을 여러 개 선택해서 한꺼번에 옮기거나 지울 수 있게 해줘</div>
+          <div class="card"><h4>지시 이해</h4>
+            <p>기존 단일 선택만 가능했던 파일 목록에 macOS Finder / Nautilus와 동일한 다중 선택 패턴을 도입. Ctrl/Cmd-클릭으로 토글, Shift-클릭으로 범위 선택. 선택 상태에서 드래그·삭제·우클릭 메뉴가 모두 다중 항목을 받아야 함.</p>
+          </div>
+          <div class="card"><h4>대응 — Pane.tsx 선택 상태 재설계</h4>
+            <ul>
+              <li><code class="inline">selected: Set&lt;string&gt;</code> + <code class="inline">anchor: string | null</code> 두 상태로 분리. anchor는 Shift-range의 기준점.</li>
+              <li><code class="inline">handleSelectClick</code>: shift+anchor → <code class="inline">visibleEntries.slice(s, e+1)</code>로 범위, ctrl/meta → 토글, 단일 클릭 → 단일 선택+anchor 갱신.</li>
+              <li>드래그·삭제·"Copy paths" 우클릭 모두 <code class="inline">Array.from(selected)</code> 기반으로 일괄 처리. 선택 개수 배지(<code class="inline">.selection-count</code>) 헤더에 표시.</li>
+              <li>키보드: <code class="inline">Ctrl/Cmd+A</code> 전체, <code class="inline">Esc</code> 해제, <code class="inline">Delete</code>/<code class="inline">Backspace</code> 일괄 휴지통.</li>
+            </ul>
+          </div>
+          <div class="card"><h4>릴리스</h4>
+            <p>0.2.0 → <b>0.2.1</b> patch bump. 태그 푸시 → matrix CI → GH Release + APT repo 갱신.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <h3 class="phase">J. ARM64 멀티아키 + UX 마감 + v0.3.0</h3>
+      <div class="timeline">
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-08 13:50 KST · 사용자</div>
+          <div class="turn-title">Parallels 우분투에서 안 깔린다</div>
+          <div class="quote-box">이거 맥에 설치된 패러럴즈의 우분투에서도 구동이 되도록 해줘.</div>
+          <div class="quote-box">그냥 sudo apt install 단계에서 arm 미지원 이라고 뜨던데. arm이라고 구지 않될 이유가 없을것 같아</div>
+          <div class="card"><h4>지시 이해</h4>
+            <p>Apple Silicon Mac의 Parallels 우분투는 <b>aarch64</b>이지만, 기존 apt repo와 GitHub Release는 amd64 .deb / .AppImage 만 보유 중. 사용자가 처음 시도한 <code class="inline">sudo apt install pw-finder</code>가 "no installation candidate"로 떨어진 정황. 본질적으로 ARM 빌드를 추가하면 해결되는 인프라 작업.</p>
+          </div>
+          <div class="card"><h4>대응 — 3개 파일</h4>
+            <ul>
+              <li><b>release.yml 재구성</b>: 매트릭스에 <code class="inline">ubuntu-22.04-arm</code> 추가(GitHub 2025년부터 공개 저장소 무료 ARM64 러너 제공). gh-pages 푸시 레이스 회피를 위해 apt repo 갱신을 별도 <code class="inline">publish-apt</code> 잡으로 분리 — 두 Linux 잡의 .deb를 workflow artifact로 받아 단일 푸시.</li>
+              <li><b>build-apt-repo.sh 멀티아키화</b>: <code class="inline">dpkg-deb -f Architecture</code>로 풀의 모든 .deb 아키 감지, <code class="inline">dpkg-scanpackages --arch &lt;a&gt;</code>로 <code class="inline">binary-amd64/Packages</code>·<code class="inline">binary-arm64/Packages</code>를 각각 생성, Release 파일에 <code class="inline">Architectures: amd64 arm64</code>. 합성 .deb로 스모크 테스트 통과.</li>
+              <li><b>README</b>: apt 명령은 동일(apt가 자동으로 맞는 아키 선택). amd64/arm64 양쪽 안내 명시.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="turn t-user">
+          <div class="timestamp">2026-05-08 14:10 KST · 사용자</div>
+          <div class="turn-title">UX 3종 추가</div>
+          <div class="quote-box">또 각 pane 경계선에서 pane 크기를 조절하는 기능을 넣어주고, pane의 크기에 따라 파일이름을 ... 으로 줄이는 기능. 그리고 날짜별, 이름별, 용량별로 sort하는 기능을 bar의 날짜나 이름 을 클릭하면 되도록 해줘</div>
+          <div class="card"><h4>지시 이해</h4>
+            <p>로드맵에 적혀있던 "분할선 드래그로 패널 비율 조정"을 본격 처리하면서, 좁은 패널에서 긴 파일명이 잘리지 않는 문제와 정렬 미지원까지 같이 정리. 헤더 클릭으로 정렬은 데스크톱 파일 탐색기의 기본 패턴.</p>
+          </div>
+          <div class="card"><h4>대응 (1) 분할선 드래그 — <code class="inline">SplitGrid.tsx</code> 신규</h4>
+            <ul>
+              <li>모든 multi-pane 레이아웃의 grid를 3×3(콘텐츠 트랙 + 6px 스플리터 트랙 + 콘텐츠 트랙)으로 통일. <code class="inline">gridTemplateRows/Columns</code>를 인라인으로 동적 생성하고, 각 패널·스플리터에 <code class="inline">grid-area</code> 인라인 부여.</li>
+              <li>스플리터 mousedown → document에 mousemove/mouseup 리스너 부착, 픽셀 델타를 콘텐츠 폭(전체 − 6px) 대비 퍼센트로 환산해 양쪽 트랙(<code class="inline">cols[0]/cols[1]</code> 또는 <code class="inline">rows[0]/rows[1]</code>)을 100 합으로 갱신, 10–90% 클램프.</li>
+              <li>드래그 중 <code class="inline">document.body.style.cursor = col-resize/row-resize</code> + <code class="inline">user-select: none</code>. mouseup 시점에 layout별 키(<code class="inline">finder-sizes-&lt;layout&gt;</code>)로 localStorage 저장 — useEffect 기반 저장 시 발생하는 layout 전환 레이스 회피.</li>
+              <li>레이아웃 6종에 대한 패널/스플리터 grid-area 매핑은 <code class="inline">paneArea()</code>·<code class="inline">splittersFor()</code> 함수로 캡슐화. triple-left는 V 스플리터(전체 높이) + H 스플리터(우측 칸만), triple-top은 H(전체 폭) + V(하단만).</li>
+            </ul>
+          </div>
+          <div class="card"><h4>대응 (2) 파일명 말줄임</h4>
+            <p>원인: <code class="inline">.file-row { grid-template-columns: 24px 1fr auto auto }</code>의 <code class="inline">1fr</code>은 grid item 기본값 <code class="inline">min-width: auto</code> 때문에 콘텐츠 너비 이하로 줄지 않음 → 이미 적용돼 있던 <code class="inline">text-overflow: ellipsis</code>가 발현 안 됨. 해결: <code class="inline">minmax(0, 1fr)</code>로 한 글자. 파일명 <code class="inline">title</code> 속성으로 호버 시 전체 이름 노출.</p>
+          </div>
+          <div class="card"><h4>대응 (3) 컬럼 정렬</h4>
+            <ul>
+              <li><code class="inline">PaneConfig</code>에 <code class="inline">sortKey</code>·<code class="inline">sortDir</code> 필드 추가 (기존 <code class="inline">showHidden</code>·<code class="inline">showGit</code>처럼 패널별 영속).</li>
+              <li><code class="inline">FileList.tsx</code>에 sticky 헤더 행 추가: Name/Size/Modified 버튼. 같은 컬럼 재클릭 시 asc↔desc 토글, 다른 컬럼 클릭 시 asc로 시작. 활성 컬럼에 ↑/↓.</li>
+              <li>Pane에서 <code class="inline">sortedEntries</code>를 useMemo로 계산: 폴더/파일 분리 → 각자 비교자(<code class="inline">localeCompare numeric: true</code> for name, size·modified는 동률 시 name tie-break)로 정렬 → folders-first로 합침. 선택·키보드 단축키도 <code class="inline">sortedEntries</code> 기반으로 통일해 Shift-range가 표시 순서와 일치.</li>
+            </ul>
+          </div>
+          <div class="card"><h4>검증</h4>
+            <p><code class="inline">npx tsc --noEmit</code> 통과, <code class="inline">npx vite build</code> 통과(40 모듈, 163 kB), <code class="inline">npm run tauri dev</code> 백그라운드 기동 → Vite ready 94 ms + Cargo Finished 확인. 사용자가 직접 분할선/정렬/말줄임 동작 OK 보고.</p>
+          </div>
+        </div>
+
+        <div class="turn t-user minor">
+          <div class="timestamp">2026-05-08 14:35 KST · 사용자</div>
+          <div class="turn-title">v0.3.0 묶음 릴리스 결정</div>
+          <div class="quote-box">ARM64 + 새 UX 합쳐서 v0.3.0 (minor) 이렇게 하자</div>
+          <div class="card"><h4>대응</h4>
+            <p>버전 0.2.1 → 0.3.0 minor bump (<code class="inline">package.json</code>·<code class="inline">tauri.conf.json</code>·<code class="inline">src-tauri/Cargo.toml</code>·<code class="inline">package-lock.json</code>). history.html 갱신(섹션 I·J 추가, 로드맵 ✅, 릴리스 비교표 확장). 단일 커밋·태그 후 푸시 단계는 사용자 확인 받고 진행.</p>
+          </div>
         </div>
 
       </div>
@@ -827,11 +913,13 @@ sudo apt install pw-finder</pre>
       <div class="card">
         <h4>릴리스 비교</h4>
         <table class="compare">
-          <tr><th>버전</th><th>날짜</th><th>주요 변경</th><th>플랫폼</th><th>.deb</th></tr>
-          <tr><td>v0.1.0</td><td>15:34</td><td>최초 릴리스 (Finder)</td><td>Linux</td><td>3.0 MB</td></tr>
-          <tr><td>v0.1.1</td><td>16:00</td><td>deb Depends 중복 제거</td><td>Linux</td><td>3.0 MB</td></tr>
-          <tr><td>v0.1.2</td><td>17:00</td><td>PWFinder 리네임 + Tree 사이드바 + Active pane + History + Window state 복원</td><td>Linux</td><td>3.04 MB</td></tr>
-          <tr><td><b>v0.2.0</b></td><td>17:45</td><td>macOS 포팅 (.dmg arm64), Rust 분기 컴파일, matrix CI</td><td><b>Linux + macOS</b></td><td>3.03 MB / 2.89 MB (.dmg)</td></tr>
+          <tr><th>버전</th><th>날짜</th><th>주요 변경</th><th>플랫폼·아키</th></tr>
+          <tr><td>v0.1.0</td><td>2026-05-07 15:34</td><td>최초 릴리스 (Finder)</td><td>Linux x86_64</td></tr>
+          <tr><td>v0.1.1</td><td>2026-05-07 16:00</td><td>deb Depends 중복 제거</td><td>Linux x86_64</td></tr>
+          <tr><td>v0.1.2</td><td>2026-05-07 17:00</td><td>PWFinder 리네임 + Tree 사이드바 + Active pane + History + Window state 복원</td><td>Linux x86_64</td></tr>
+          <tr><td>v0.2.0</td><td>2026-05-07 17:45</td><td>macOS 포팅 (.dmg arm64), Rust 분기 컴파일, matrix CI</td><td>Linux x86_64 + macOS arm64</td></tr>
+          <tr><td>v0.2.1</td><td>2026-05-07 (후속)</td><td>다중 선택(Ctrl/Cmd-클릭 토글, Shift 범위), 일괄 드래그·삭제·우클릭</td><td>Linux x86_64 + macOS arm64</td></tr>
+          <tr><td><b>v0.3.0</b></td><td><b>2026-05-08</b></td><td><b>ARM64 Linux 멀티아키 apt repo</b>, 분할선 드래그 리사이즈, 컬럼 정렬(Name/Size/Modified), 파일명 말줄임</td><td><b>Linux x86_64 + arm64 + macOS arm64</b></td></tr>
         </table>
       </div>
 
@@ -840,7 +928,9 @@ sudo apt install pw-finder</pre>
         <div class="card">
           <h4>UX</h4>
           <ul>
-            <li>분할선 드래그로 패널 비율 조정</li>
+            <li>✅ 분할선 드래그로 패널 비율 조정 (v0.3.0)</li>
+            <li>✅ 컬럼 정렬 — Name/Size/Modified 클릭 (v0.3.0)</li>
+            <li>✅ 파일명 말줄임 (v0.3.0)</li>
             <li>키보드 단축키 (Ctrl+1..6 레이아웃)</li>
             <li>패널 내 탭 다중 보유</li>
             <li>북마크/즐겨찾기</li>
@@ -849,6 +939,7 @@ sudo apt install pw-finder</pre>
         <div class="card">
           <h4>기능</h4>
           <ul>
+            <li>✅ 다중 선택 — Ctrl/Cmd 토글, Shift 범위 (v0.2.1)</li>
             <li>이동(잘라내기) — Shift+드래그로 move</li>
             <li>인-패널 검색 / 필터</li>
             <li>외부 앱(Nautilus / Finder)에서 파일 드롭</li>
@@ -858,7 +949,8 @@ sudo apt install pw-finder</pre>
         <div class="card">
           <h4>플랫폼</h4>
           <ul>
-            <li>✅ macOS 포팅 (v0.2.0)</li>
+            <li>✅ macOS arm64 포팅 (v0.2.0)</li>
+            <li>✅ Linux ARM64 멀티아키 apt repo (v0.3.0)</li>
             <li>macOS 코드사이닝 + 노터라이제이션 (Gatekeeper 자유 통과)</li>
             <li>Universal 바이너리 (Intel + Apple Silicon)</li>
             <li>Homebrew tap (<code class="inline">brew install --cask pwfinder</code>)</li>
@@ -868,6 +960,7 @@ sudo apt install pw-finder</pre>
         <div class="card">
           <h4>인프라</h4>
           <ul>
+            <li>✅ apt repo 발행 잡 분리(레이스 회피) (v0.3.0)</li>
             <li>Node.js 24로 Actions 마이그레이션 (deprecation 경고)</li>
             <li>다중 Ubuntu 버전 빌드 매트릭스 (22.04 + 24.04)</li>
             <li>버전 자동 bump 스크립트</li>
@@ -878,15 +971,21 @@ sudo apt install pw-finder</pre>
       <h2 class="section">세션 종료 노트</h2>
       <div class="card">
         <p>
-          단일 세션(2026-05-07, 약 6시간) 동안 <b>요구 도출 → 환경 셋업 → 핵심 기능 구현 → GitHub 게시 → 자체 APT repo 자동 배포 → 4번의 릴리스 → 크로스플랫폼(macOS) 확장</b>까지 진행됨. 마지막 단계에서 macOS Gatekeeper 차단 이슈가 표면화 — 첫 실행 우회법은 즉시 안내됨.
+          1차 세션(2026-05-07, 약 6시간) — 요구 도출 → 환경 셋업 → 핵심 기능 구현 → GitHub 게시 → 자체 APT repo 자동 배포 → 4번의 릴리스 → 크로스플랫폼(macOS) 확장. 마지막 단계에서 macOS Gatekeeper 차단 이슈가 표면화 — 첫 실행 우회법은 즉시 안내됨.
         </p>
         <p>
-          <b>다음 세션 후보 작업</b>: Apple Developer 인증서로 코드사이닝 + 노터라이제이션 자동화, Universal 바이너리 (Intel 호환), Homebrew tap 셋업, Node 24로 Actions 마이그레이션, 분할선 드래그 / 키보드 단축키 / 인-패널 검색 같은 UX 마감.
+          후속 세션(2026-05-07 후속, ~2시간) — 다중 선택 패턴 도입, v0.2.1 릴리스.
+        </p>
+        <p>
+          3차 세션(2026-05-08, 약 1시간) — Parallels Apple Silicon 우분투의 ARM64 호환을 시작점으로 GitHub Actions 멀티아키 매트릭스 + apt repo 멀티아키화. 같은 묶음으로 분할선 드래그 리사이즈, 컬럼 정렬, 파일명 말줄임을 추가하고 v0.3.0 minor 릴리스로 묶음.
+        </p>
+        <p>
+          <b>다음 세션 후보 작업</b>: macOS 코드사이닝 + 노터라이제이션 자동화, Universal 바이너리(Intel 호환), Homebrew tap 셋업, Node 24로 Actions 마이그레이션, 키보드 단축키(Ctrl+1..6), 패널 내 탭, 인-패널 검색.
         </p>
       </div>
 
       <footer>
-        PWFinder · 단일 세션 작업 로그 · 2026-05-07 · 본 문서는 사용자 지시에 따라 자동 생성·갱신됩니다.
+        PWFinder · 작업 로그 · 2026-05-07 ~ 2026-05-08 · 본 문서는 사용자 지시에 따라 자동 생성·갱신됩니다.
       </footer>
     </div>
   </body>

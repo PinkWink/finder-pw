@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
 # Build or update a Debian APT repository from one or more .deb files.
+# Multi-architecture: each input .deb's Architecture field is read with
+# dpkg-deb and routed to dists/<suite>/main/binary-<arch>/Packages.
+#
 # The output directory is ready to be served as static files (e.g. via GitHub Pages).
 #
 # Usage:
@@ -10,7 +13,7 @@
 #   GPG_KEY_ID         long key ID or fingerprint of the signing key
 #   GPG_PASSPHRASE     (optional) passphrase if the key has one
 #
-# Required tools: dpkg-scanpackages, gpg, gzip, sha256sum, md5sum
+# Required tools: dpkg-scanpackages, dpkg-deb, gpg, gzip, sha256sum, md5sum
 #
 # Idempotent: runs against an existing repo merge-add new .debs and regenerate metadata.
 
@@ -31,14 +34,12 @@ fi
 
 SUITE="stable"
 COMPONENT="main"
-ARCH="amd64"
 PKG="pwfinder"
 
 POOL_DIR="$REPO_DIR/pool/$COMPONENT/${PKG:0:1}/$PKG"
 DISTS_DIR="$REPO_DIR/dists/$SUITE"
-PKG_DIR="$DISTS_DIR/$COMPONENT/binary-$ARCH"
 
-mkdir -p "$POOL_DIR" "$PKG_DIR"
+mkdir -p "$POOL_DIR"
 
 echo "==> Adding .debs to pool"
 for deb in "${DEBS[@]}"; do
@@ -49,18 +50,61 @@ for deb in "${DEBS[@]}"; do
   cp -v "$deb" "$POOL_DIR/"
 done
 
-echo "==> Generating Packages"
-(
-  cd "$REPO_DIR"
-  dpkg-scanpackages --multiversion pool/ > "dists/$SUITE/$COMPONENT/binary-$ARCH/Packages"
-  gzip -kf9 "dists/$SUITE/$COMPONENT/binary-$ARCH/Packages"
+echo "==> Detecting architectures from pool"
+# Collect unique Architecture values across every .deb currently in the pool
+# (preserves arches from prior releases that this run may not include).
+mapfile -t ARCHES < <(
+  find "$POOL_DIR" -maxdepth 1 -type f -name '*.deb' -print0 \
+    | xargs -0 -I{} dpkg-deb -f {} Architecture 2>/dev/null \
+    | sort -u
 )
+
+if [[ ${#ARCHES[@]} -eq 0 ]]; then
+  echo "Error: no architectures detected from pool" >&2
+  exit 1
+fi
+
+echo "    Architectures: ${ARCHES[*]}"
+
+echo "==> Generating Packages (per architecture)"
+for arch in "${ARCHES[@]}"; do
+  PKG_DIR="$DISTS_DIR/$COMPONENT/binary-$arch"
+  mkdir -p "$PKG_DIR"
+  (
+    cd "$REPO_DIR"
+    # --arch <a> filters to *_<a>.deb and *_all.deb
+    dpkg-scanpackages --multiversion --arch "$arch" pool/ \
+      > "dists/$SUITE/$COMPONENT/binary-$arch/Packages"
+    gzip -kf9 "dists/$SUITE/$COMPONENT/binary-$arch/Packages"
+  )
+done
+
+echo "==> Removing stale per-arch dirs no longer in pool"
+if [[ -d "$DISTS_DIR/$COMPONENT" ]]; then
+  for d in "$DISTS_DIR/$COMPONENT"/binary-*; do
+    [[ -e "$d" ]] || continue
+    arch_in_dir="${d##*/binary-}"
+    found=0
+    for a in "${ARCHES[@]}"; do
+      if [[ "$a" == "$arch_in_dir" ]]; then
+        found=1
+        break
+      fi
+    done
+    if [[ $found -eq 0 ]]; then
+      echo "    removing $d"
+      rm -rf "$d"
+    fi
+  done
+fi
 
 echo "==> Writing Release"
 RELEASE_FILE="$DISTS_DIR/Release"
 
 # Remove old signatures so they don't get hashed into the new Release
 rm -f "$DISTS_DIR/Release" "$DISTS_DIR/Release.gpg" "$DISTS_DIR/InRelease"
+
+ARCH_LIST="${ARCHES[*]}"
 
 {
   cat <<EOF
@@ -69,7 +113,7 @@ Label: PWFinder
 Suite: $SUITE
 Codename: $SUITE
 Version: 1.0
-Architectures: $ARCH
+Architectures: $ARCH_LIST
 Components: $COMPONENT
 Description: PWFinder file explorer apt repository
 Date: $(date -Ru)
@@ -116,7 +160,7 @@ cat > "$REPO_DIR/index.html" <<'EOF'
 <title>PWFinder APT repo</title>
 <style>body{font-family:system-ui,sans-serif;max-width:680px;margin:48px auto;padding:0 16px;color:#2c3138;line-height:1.6}code{background:#f1f4f7;padding:2px 6px;border-radius:4px;font-family:ui-monospace,monospace}pre{background:#f1f4f7;padding:12px 16px;border-radius:6px;overflow:auto}h1{margin-bottom:4px}h2{margin-top:32px}</style>
 <h1>PWFinder APT repository</h1>
-<p>Add this repo to your Ubuntu/Debian system:</p>
+<p>Add this repo to your Ubuntu/Debian system (amd64 and arm64 supported):</p>
 <pre><code>curl -fsSL https://__PAGE_URL__/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
 echo "deb [signed-by=/usr/share/keyrings/pwfinder.gpg] https://__PAGE_URL__ stable main" | sudo tee /etc/apt/sources.list.d/pwfinder.list
 sudo apt update
@@ -126,5 +170,6 @@ EOF
 
 echo
 echo "Repo built at: $REPO_DIR"
-echo "  pool/:  $(find "$REPO_DIR/pool" -type f -name '*.deb' | wc -l) .deb files"
-echo "  size:   $(du -sh "$REPO_DIR" | awk '{print $1}')"
+echo "  pool/:         $(find "$REPO_DIR/pool" -type f -name '*.deb' | wc -l) .deb files"
+echo "  architectures: ${ARCHES[*]}"
+echo "  size:          $(du -sh "$REPO_DIR" | awk '{print $1}')"

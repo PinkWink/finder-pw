@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import Pane from "./components/Pane";
 import Toolbar from "./components/Toolbar";
 import TreeSidebar from "./components/TreeSidebar";
+import SplitGrid from "./components/SplitGrid";
 import { LayoutMode, PaneConfig } from "./types";
 
 const DEFAULT_COLORS = ["#4F8FCB", "#E07B5C", "#6FB36F", "#C58FCB"];
@@ -148,7 +149,7 @@ export default function App() {
             onSelect={(path) => updatePane(safeActive, { path })}
           />
         )}
-        <div className={`pane-grid layout-${layout}`}>
+        <SplitGrid layout={layout}>
           {visiblePanes.map((pane, idx) => (
             <Pane
               key={pane.id}
@@ -163,7 +164,7 @@ export default function App() {
               }
             />
           ))}
-        </div>
+        </SplitGrid>
       </div>
     </div>
   );

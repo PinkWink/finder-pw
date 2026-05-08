@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { FileEntry, GitStatus, PaneConfig } from "../types";
+import { FileEntry, GitStatus, PaneConfig, SortKey, SortDir } from "../types";
 import FileList from "./FileList";
 import PaneSettings from "./PaneSettings";
 import ContextMenu, { ContextMenuItem } from "./ContextMenu";
@@ -105,6 +105,38 @@ export default function Pane({
     [entries, config.showHidden]
   );
 
+  const sortKey: SortKey = config.sortKey ?? "name";
+  const sortDir: SortDir = config.sortDir ?? "asc";
+
+  const sortedEntries = useMemo(() => {
+    const cmp = (a: FileEntry, b: FileEntry) => {
+      let v = 0;
+      if (sortKey === "name") {
+        v = a.name.localeCompare(b.name, undefined, { sensitivity: "base", numeric: true });
+      } else if (sortKey === "size") {
+        v = a.size - b.size;
+        if (v === 0) v = a.name.localeCompare(b.name);
+      } else {
+        v = a.modified - b.modified;
+        if (v === 0) v = a.name.localeCompare(b.name);
+      }
+      return sortDir === "asc" ? v : -v;
+    };
+    const folders = visibleEntries.filter((e) => e.is_dir);
+    const files = visibleEntries.filter((e) => !e.is_dir);
+    folders.sort(cmp);
+    files.sort(cmp);
+    return [...folders, ...files];
+  }, [visibleEntries, sortKey, sortDir]);
+
+  const handleSortChange = (key: SortKey) => {
+    if (key === sortKey) {
+      onUpdate({ sortDir: sortDir === "asc" ? "desc" : "asc" });
+    } else {
+      onUpdate({ sortKey: key, sortDir: "asc" });
+    }
+  };
+
   const goUp = async () => {
     try {
       const parent = await invoke<string | null>("get_parent_dir", { path: config.path });
@@ -133,12 +165,12 @@ export default function Pane({
 
   const handleSelectClick = (ev: React.MouseEvent, entry: FileEntry) => {
     if (ev.shiftKey && anchor) {
-      const i1 = visibleEntries.findIndex((e) => e.path === anchor);
-      const i2 = visibleEntries.findIndex((e) => e.path === entry.path);
+      const i1 = sortedEntries.findIndex((e) => e.path === anchor);
+      const i2 = sortedEntries.findIndex((e) => e.path === entry.path);
       if (i1 >= 0 && i2 >= 0) {
         const [s, e] = i1 < i2 ? [i1, i2] : [i2, i1];
         setSelected(
-          new Set(visibleEntries.slice(s, e + 1).map((x) => x.path))
+          new Set(sortedEntries.slice(s, e + 1).map((x) => x.path))
         );
       }
     } else if (ev.ctrlKey || ev.metaKey) {
@@ -198,7 +230,7 @@ export default function Pane({
 
       if ((ev.ctrlKey || ev.metaKey) && ev.key === "a") {
         ev.preventDefault();
-        setSelected(new Set(visibleEntries.map((e) => e.path)));
+        setSelected(new Set(sortedEntries.map((e) => e.path)));
         return;
       }
       if (ev.key === "Escape") {
@@ -218,7 +250,7 @@ export default function Pane({
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [isActive, visibleEntries, selected, deleteSelected]);
+  }, [isActive, sortedEntries, selected, deleteSelected]);
 
   const headerStyle = { ["--pane-color" as never]: config.color } as React.CSSProperties;
 
@@ -474,8 +506,11 @@ export default function Pane({
         {error && <div className="status-msg error">{error}</div>}
         {!loading && !error && (
           <FileList
-            entries={visibleEntries}
+            entries={sortedEntries}
             selected={selected}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            onSortChange={handleSortChange}
             onActivate={handleEntryActivate}
             onSelectClick={handleSelectClick}
             onDragStart={handleDragStart}

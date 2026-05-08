@@ -16,11 +16,22 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: linux
+            arch: amd64
+            artifact_name: linux-amd64
+            artifact_glob: |
+              src-tauri/target/release/bundle/deb/*.deb
+              src-tauri/target/release/bundle/appimage/*.AppImage
+          - os: ubuntu-22.04-arm
+            target: linux
+            arch: arm64
+            artifact_name: linux-arm64
             artifact_glob: |
               src-tauri/target/release/bundle/deb/*.deb
               src-tauri/target/release/bundle/appimage/*.AppImage
           - os: macos-latest
             target: macos
+            arch: arm64
+            artifact_name: macos-arm64
             artifact_glob: |
               src-tauri/target/release/bundle/dmg/*.dmg
 
@@ -43,8 +54,7 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev \
             pkg-config \
-            dpkg-dev \
-            gnupg
+            dpkg-dev
 
       # ---------- macOS toolchain ----------
       - name: Generate icon.icns from PNG (macOS)
@@ -73,7 +83,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-          key: ${{ matrix.target }}
+          key: ${{ matrix.artifact_name }}
 
       - name: Install npm dependencies
         run: npm ci
@@ -90,6 +100,21 @@ jobs:
           # Skip codesigning (no Apple Developer cert configured yet)
           APPLE_SIGNING_IDENTITY: "-"
 
+      # ---------- Workflow artifacts (for downstream apt-repo publish) ----------
+      - name: Stage Linux .deb for apt-repo job
+        if: matrix.target == 'linux'
+        run: |
+          mkdir -p staging-deb
+          cp src-tauri/target/release/bundle/deb/*.deb staging-deb/
+
+      - name: Upload Linux .deb as workflow artifact
+        if: matrix.target == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-deb
+          path: staging-deb/
+          retention-days: 7
+
       # ---------- Release upload ----------
       - name: Upload artifacts to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
@@ -99,9 +124,33 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: false
 
-      # ---------- Linux-only: APT repo update ----------
+  publish-apt:
+    name: Publish APT repo (multi-arch)
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source (for scripts)
+        uses: actions/checkout@v4
+
+      - name: Install apt-repo tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev gnupg
+
+      - name: Download amd64 .deb
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-amd64-deb
+          path: debs/amd64
+
+      - name: Download arm64 .deb
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arm64-deb
+          path: debs/arm64
+
       - name: Checkout existing apt-repo (gh-pages branch)
-        if: matrix.target == 'linux'
         uses: actions/checkout@v4
         with:
           ref: gh-pages
@@ -109,15 +158,12 @@ jobs:
         continue-on-error: true
 
       - name: Initialize empty repo if first run
-        if: matrix.target == 'linux'
         run: mkdir -p apt-repo
 
       - name: Drop stale 'finder' packages (post-rename to PWFinder)
-        if: matrix.target == 'linux'
         run: rm -rf apt-repo/pool/main/f || true
 
       - name: Import GPG signing key
-        if: matrix.target == 'linux'
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
@@ -125,23 +171,21 @@ jobs:
           gpg --list-secret-keys
 
       - name: Build/update APT repo
-        if: matrix.target == 'linux'
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           ./scripts/build-apt-repo.sh apt-repo \
-            src-tauri/target/release/bundle/deb/*.deb
+            debs/amd64/*.deb \
+            debs/arm64/*.deb
 
       - name: Replace placeholders in index.html
-        if: matrix.target == 'linux'
         run: |
           PAGE_URL="${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
           GH_REPO="${{ github.repository }}"
           sed -i "s|__PAGE_URL__|$PAGE_URL|g; s|__GH_REPO__|$GH_REPO|g" apt-repo/index.html
 
       - name: Publish apt-repo to gh-pages
-        if: matrix.target == 'linux'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

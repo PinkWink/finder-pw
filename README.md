@@ -2,7 +2,7 @@
 
 A 4-split file explorer for **Linux and macOS** desktops. Each pane is independent — navigate, color-tag, label, drag-and-drop copy, and check git status. Includes a left-side folder tree and per-pane history. Designed to make multi-folder workflows actually pleasant.
 
-> Built with Rust + Tauri 2 + React. Single native binary, ~10–30 MB RAM. Packaged as `.deb` / AppImage on Linux and `.dmg` on macOS.
+> Built with Rust + Tauri 2 + React. Single native binary, ~10–30 MB RAM. Packaged as `.deb` / AppImage on Linux (amd64 and arm64) and `.dmg` on macOS (Apple Silicon).
 
 ---
 
@@ -27,7 +27,7 @@ A 4-split file explorer for **Linux and macOS** desktops. Each pane is independe
 
 ### Linux — `apt install` (Ubuntu/Debian, recommended)
 
-One-time setup. Registers PWFinder as an apt source so `sudo apt upgrade` keeps it updated automatically.
+One-time setup. Registers PWFinder as an apt source so `sudo apt upgrade` keeps it updated automatically. Works on both **amd64** (regular PC) and **arm64** (Raspberry Pi, Apple Silicon Parallels VM, etc.) — apt picks the right one for your machine.
 
 ```bash
 curl -fsSL https://pinkwink.github.io/finder-pw/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/pwfinder.gpg
@@ -42,7 +42,12 @@ The app will appear in the application launcher (Dash / Activities) as **PWFinde
 
 ### Linux — pre-built `.deb` / AppImage (no apt source)
 
-Download `PWFinder_<version>_amd64.deb` (or `.AppImage`) from the [Releases](../../releases) page:
+Download the `.deb` (or `.AppImage`) for your architecture from the [Releases](../../releases) page:
+
+- `PWFinder_<version>_amd64.deb` — regular x86_64 PC
+- `PWFinder_<version>_arm64.deb` — aarch64 (Raspberry Pi, Apple Silicon Parallels VM, etc.)
+
+Check your arch with `dpkg --print-architecture` if unsure.
 
 ```bash
 sudo dpkg -i PWFinder_*.deb
@@ -100,7 +105,7 @@ npm install
 npm run tauri build
 ```
 
-Artifacts are produced at:
+Artifacts are produced at (architecture matches the machine you're building on — amd64 or arm64 on Linux):
 
 ```
 # Linux

@@ -6,6 +6,9 @@ export interface FileEntry {
   modified: number;
 }
 
+export type SortKey = "name" | "size" | "modified";
+export type SortDir = "asc" | "desc";
+
 export interface PaneConfig {
   id: string;
   name: string;
@@ -14,6 +17,8 @@ export interface PaneConfig {
   showHidden?: boolean;
   showGit?: boolean;
   history?: string[];
+  sortKey?: SortKey;
+  sortDir?: SortDir;
 }
 
 export interface GitStatus {
