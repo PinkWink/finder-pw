@@ -6,14 +6,14 @@ Version: 1.0
 Architectures: amd64 arm64
 Components: main
 Description: PWFinder file explorer apt repository
-Date: Sat, 09 May 2026 01:37:39 +0000
+Date: Sat, 09 May 2026 02:00:57 +0000
 MD5Sum:
- 59042612e00c3398a110861d6f24b491             5770 main/binary-amd64/Packages
- c32f9579a3fc822f5eedad786d297cd1             1233 main/binary-amd64/Packages.gz
- d78ae5221f3a1db56293f4340452ccb0             3298 main/binary-arm64/Packages
- 19b219698a49b28e9ff5bc435d6bf3b1              901 main/binary-arm64/Packages.gz
+ 9a0dc67446c4186e8c6954b87a40e38d             6595 main/binary-amd64/Packages
+ a4862a3567a0d7348630b4b33c00b900             1344 main/binary-amd64/Packages.gz
+ 51bcb6e988e251d821f71826be9a0d1c             4123 main/binary-arm64/Packages
+ 6921276c2075c7747854e3f9b247473a             1008 main/binary-arm64/Packages.gz
 SHA256:
- 22e7b132972167ad27574f142d72ce45aebed07671570cb4db7a8e31c26b1e26             5770 main/binary-amd64/Packages
- e0211953338f963d768b77f7640c8d77c95d9e9a476ca9b69ffaa60bda2dea78             1233 main/binary-amd64/Packages.gz
- 8561937f8e6f7c5ed82d2f1cb3623d1282b0c1ad41a8bb5567ee9f3fa82ae11f             3298 main/binary-arm64/Packages
- d1ae68d0c8ebdb6ec0374393fe41c79ffe28eb0ca44921df68ed6681945644f4              901 main/binary-arm64/Packages.gz
+ eeebd140c1d56b005b06426e87c3d24382e82f5a31a51508ebf441a639fe5c60             6595 main/binary-amd64/Packages
+ d390258092062d035cc06e43652cf9a6d96145c7196d55e8bf83da7f45a84d0a             1344 main/binary-amd64/Packages.gz
+ 2b0368ece5ca0042084e65ce2504b050d335e7a5bb5cdfdcbdefd27d4eef28e2             4123 main/binary-arm64/Packages
+ 5788650e9f759f3583abe24db6f074baa0bbba7b95c16a7b7eac63a24162d5dc             1008 main/binary-arm64/Packages.gz
