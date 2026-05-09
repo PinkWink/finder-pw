@@ -1,6 +1,6 @@
 [package]
 name = "pwfinder"
-version = "0.4.0"
+version = "0.4.1"
 description = "A 4-split file explorer"
 authors = ["PinkWink"]
 edition = "2021"

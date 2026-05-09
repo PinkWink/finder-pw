@@ -319,18 +319,26 @@ fn open_terminal(path: String) -> Result<(), String> {
     }
     #[cfg(not(target_os = "macos"))]
     {
+        // Real terminal binaries first — they natively honor their cwd flag.
+        // x-terminal-emulator is intentionally last because on Debian/Ubuntu
+        // it points to gnome-terminal.wrapper (a Perl script that whitelists
+        // xterm-style args and silently drops --working-directory), which
+        // makes the terminal open at the caller's cwd instead of the pane's.
         let candidates: &[(&str, &str)] = &[
-            ("x-terminal-emulator", "--working-directory"),
             ("gnome-terminal", "--working-directory"),
             ("konsole", "--workdir"),
             ("xfce4-terminal", "--working-directory"),
             ("mate-terminal", "--working-directory"),
+            ("tilix", "--working-directory"),
             ("kitty", "--directory"),
             ("alacritty", "--working-directory"),
+            ("wezterm", "--cwd"),
+            ("x-terminal-emulator", "--working-directory"),
         ];
         for (bin, flag) in candidates {
             if Command::new(bin)
                 .arg(format!("{}={}", flag, path))
+                .current_dir(&path)
                 .spawn()
                 .is_ok()
             {
@@ -338,8 +346,7 @@ fn open_terminal(path: String) -> Result<(), String> {
             }
         }
         Command::new("xterm")
-            .arg("-e")
-            .arg(format!("cd {} && bash", path))
+            .current_dir(&path)
             .spawn()
             .map_err(|e| format!("No terminal emulator found: {}", e))?;
         Ok(())
