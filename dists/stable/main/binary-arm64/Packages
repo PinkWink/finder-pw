@@ -43,3 +43,18 @@ Priority: optional
 Description: 4-split file explorer with per-pane color, name, hidden toggle, git status, terminal, and drag-and-drop copy
  PWFinder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.
 
+Package: pw-finder
+Version: 0.4.1
+Architecture: arm64
+Maintainer: PinkWink
+Installed-Size: 13693
+Depends: libwebkit2gtk-4.1-0, libgtk-3-0
+Filename: pool/main/p/pwfinder/PWFinder_0.4.1_arm64.deb
+Size: 4977994
+MD5sum: 15178a2331cae8b4ff3c642286a09872
+SHA1: 10d8bba9499414864a6167cb06d433fa0e5d0b9e
+SHA256: cf56c530082ca842457899c7ec92c2a3aa207d42bdfb9c0dfed095cd234f2794
+Priority: optional
+Description: 4-split file explorer with per-pane color, name, hidden toggle, git status, terminal, and drag-and-drop copy
+ PWFinder is a desktop file explorer that lets you split the window into up to four independent panes, each with its own color, name, hidden-file toggle, and optional git status bar. Drag-and-drop between panes to copy files, right-click for rename or trash, and open a terminal at any pane's path with one click.
+
