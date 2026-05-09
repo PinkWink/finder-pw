@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   ConnectResult,
@@ -13,6 +13,50 @@ interface Props {
 }
 
 type AuthKind = "password" | "key" | "agent";
+
+interface RecentEntry {
+  user: string;
+  host: string;
+  port: number;
+}
+
+const RECENT_KEY = "finder-ssh-recent";
+const RECENT_LIMIT = 3;
+
+function loadRecent(): RecentEntry[] {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (e): e is RecentEntry =>
+          e &&
+          typeof e.user === "string" &&
+          typeof e.host === "string" &&
+          typeof e.port === "number"
+      )
+      .slice(0, RECENT_LIMIT);
+  } catch {
+    return [];
+  }
+}
+
+function saveRecent(entry: RecentEntry) {
+  const current = loadRecent();
+  const key = (e: RecentEntry) => `${e.user}@${e.host}:${e.port}`;
+  const k = key(entry);
+  const next = [entry, ...current.filter((e) => key(e) !== k)].slice(
+    0,
+    RECENT_LIMIT
+  );
+  localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+}
+
+function formatRecent(e: RecentEntry): string {
+  return e.port === 22 ? `${e.user}@${e.host}` : `${e.user}@${e.host}:${e.port}`;
+}
 
 function parseAddress(addr: string): { user: string; host: string; port: number } | null {
   const trimmed = addr.trim();
@@ -39,8 +83,13 @@ export default function SshConnectModal({ onClose, onConnected }: Props) {
   const [passphrase, setPassphrase] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recents, setRecents] = useState<RecentEntry[]>([]);
   const attemptIdRef = useRef<string | null>(null);
   const cancelledRef = useRef(false);
+
+  useEffect(() => {
+    setRecents(loadRecent());
+  }, []);
 
   const handleConnect = async () => {
     setError(null);
@@ -83,6 +132,7 @@ export default function SshConnectModal({ onClose, onConnected }: Props) {
         auth
       );
       if (cancelledRef.current) return;
+      saveRecent({ user: parsed.user, host: parsed.host, port: parsed.port });
       onConnected(result);
     } catch (e) {
       if (cancelledRef.current) return;
@@ -107,6 +157,23 @@ export default function SshConnectModal({ onClose, onConnected }: Props) {
     <div className="modal-backdrop" onClick={handleCancel}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h3>SSH 연결</h3>
+        {recents.length > 0 && (
+          <div className="ssh-recent">
+            <span className="ssh-recent-label">최근</span>
+            {recents.map((r) => (
+              <button
+                key={`${r.user}@${r.host}:${r.port}`}
+                type="button"
+                className="ssh-recent-chip"
+                onClick={() => setAddress(formatRecent(r))}
+                disabled={busy}
+                title={`${r.user}@${r.host}:${r.port}`}
+              >
+                {formatRecent(r)}
+              </button>
+            ))}
+          </div>
+        )}
         <label>
           주소
           <input

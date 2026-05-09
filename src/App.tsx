@@ -52,6 +52,11 @@ function loadActiveIndex(): number {
   return Number.isFinite(v) && v >= 0 && v < 4 ? v : 0;
 }
 
+function loadFontSize(): number {
+  const v = parseInt(localStorage.getItem("finder-font-size") ?? "14", 10);
+  return Number.isFinite(v) && v >= 10 && v <= 28 ? v : 14;
+}
+
 function visibleCountFor(layout: LayoutMode): number {
   switch (layout) {
     case "single":
@@ -72,6 +77,7 @@ export default function App() {
   const [layout, setLayout] = useState<LayoutMode>(loadLayout());
   const [showTree, setShowTree] = useState<boolean>(loadShowTree());
   const [activeIndex, setActiveIndex] = useState<number>(loadActiveIndex());
+  const [fontSize, setFontSize] = useState<number>(loadFontSize());
   const [home, setHome] = useState<string>("/");
   const [ready, setReady] = useState(false);
 
@@ -109,6 +115,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("finder-active-pane", String(activeIndex));
   }, [activeIndex]);
+
+  useEffect(() => {
+    localStorage.setItem("finder-font-size", String(fontSize));
+  }, [fontSize]);
 
   function updatePane(idx: number, patch: Partial<PaneConfig>) {
     setPanes((p) =>
@@ -150,12 +160,17 @@ export default function App() {
   const activePane = visiblePanes[safeActive];
 
   return (
-    <div className="app">
+    <div
+      className="app"
+      style={{ ["--app-font-size" as never]: `${fontSize}px` } as React.CSSProperties}
+    >
       <Toolbar
         layout={layout}
         onLayoutChange={setLayout}
         showTree={showTree}
         onToggleTree={() => setShowTree((v) => !v)}
+        fontSize={fontSize}
+        onFontSizeChange={setFontSize}
       />
       <div className="main">
         {showTree && activePane && !activePane.remote && (

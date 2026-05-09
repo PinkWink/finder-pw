@@ -5,6 +5,8 @@ interface Props {
   onLayoutChange: (l: LayoutMode) => void;
   showTree: boolean;
   onToggleTree: () => void;
+  fontSize: number;
+  onFontSizeChange: (px: number) => void;
 }
 
 const LAYOUTS: { mode: LayoutMode; label: string; icon: string }[] = [
@@ -16,11 +18,15 @@ const LAYOUTS: { mode: LayoutMode; label: string; icon: string }[] = [
   { mode: "quad", label: "Quad", icon: "▦" },
 ];
 
+export const FONT_SIZES = [12, 14, 16, 18, 20];
+
 export default function Toolbar({
   layout,
   onLayoutChange,
   showTree,
   onToggleTree,
+  fontSize,
+  onFontSizeChange,
 }: Props) {
   return (
     <div className="toolbar">
@@ -47,6 +53,20 @@ export default function Toolbar({
           </button>
         ))}
       </div>
+      <div className="toolbar-spacer" />
+      <label className="font-size-control" title="목록·트리·경로 글자 크기">
+        <span className="font-size-label">Aa</span>
+        <select
+          value={fontSize}
+          onChange={(e) => onFontSizeChange(parseInt(e.target.value, 10))}
+        >
+          {FONT_SIZES.map((s) => (
+            <option key={s} value={s}>
+              {s}px
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }
