@@ -12,14 +12,15 @@ A 4-split file explorer for **Linux and macOS** desktops. Each pane is independe
 - **Optional folder tree sidebar** — toggle from the toolbar; click any folder to navigate the active pane
 - **Per-pane color and name** — name auto-derives from the current folder, override anytime in Settings
 - **Drag-and-drop copy** between panes (recursive for folders, auto-renames on collision)
+- **SSH/SFTP remote panes** — `🌐` button on any pane connects to `user@host[:port]` (password / private key / ssh-agent). Drag-drop between local and remote (and remote ↔ remote) works just like local copies; remote files double-click into a temp folder and open with the right local app
 - **Right-click context menu**: Open, Rename, Copy path, Move to trash
 - **Per-pane toggles**:
   - `Hidden` — show/hide dotfiles
-  - `Git` — show branch, ahead/behind vs upstream, staged / modified / untracked counts
+  - `Git` — show branch, ahead/behind vs upstream, staged / modified / untracked counts (local panes)
 - **Open terminal** at the current pane's path (`x-terminal-emulator` → `gnome-terminal` → `konsole` → ... → `xterm`)
 - **Breadcrumb path** — click any path segment to jump to it
 - **Per-pane history** — Back button to revisit prior folders
-- **Persistent state** — pane configs, layout, tree visibility, active pane, and window size/position all restored on relaunch
+- **Persistent state** — pane configs, layout, tree visibility, active pane, and window size/position all restored on relaunch (SSH sessions are intentionally not persisted — reconnect on next launch)
 
 ---
 
@@ -190,13 +191,25 @@ finder-pw/
 | `list_directory` | `path` | `FileEntry[]` |
 | `get_home_dir` | — | `String` |
 | `get_parent_dir` | `path` | `String \| null` |
-| `open_file` | `path` | — (uses `xdg-open`) |
+| `open_file` | `path` | — (smart opener: browser for html/pdf/svg, else `xdg-open`) |
 | `copy_path` | `src`, `dst_dir` | created path (recursive copy, unique-name on collision) |
 | `rename_path` | `path`, `new_name` | new path |
 | `delete_path` | `path` | — (`gio trash` first, falls back to permanent delete) |
 | `create_dir` | `parent`, `name` | created path |
 | `open_terminal` | `path` | — (tries 8 terminal emulators) |
 | `git_status` | `path` | `GitStatus \| null` |
+| `ssh_connect` | `attempt_id`, `host`, `port`, `user`, `auth` | `{ session_id, home_dir, user, host, port }` |
+| `ssh_cancel_connect` | `attempt_id` | — (cancels in-flight connect via `tokio::select!` + oneshot) |
+| `ssh_disconnect` | `session_id` | — |
+| `ssh_list_directory` | `session_id`, `path` | `FileEntry[]` |
+| `ssh_get_parent_dir` | `path` | `String \| null` |
+| `ssh_create_dir` | `session_id`, `parent`, `name` | created path |
+| `ssh_rename` | `session_id`, `path`, `new_name` | new path |
+| `ssh_delete` | `session_id`, `path` | — (recursive) |
+| `ssh_open_file` | `session_id`, `path` | — (downloads to temp, then smart opener) |
+| `ssh_copy_to_remote` | `session_id`, `src`, `dst_dir` | created path (local → remote, recursive) |
+| `ssh_copy_from_remote` | `session_id`, `src`, `dst_dir` | created path (remote → local, recursive) |
+| `ssh_copy_remote_to_remote` | `src_session_id`, `src`, `dst_session_id`, `dst_dir` | created path (same session = SFTP-internal; cross-session = via local temp) |
 
 ---
 
@@ -208,8 +221,10 @@ finder-pw/
 | Toolbar layout buttons | Switch between 1 / 2 / 3 / 4-pane layouts |
 | Click on any pane | Mark it active (its color is shown in the tree highlight) |
 | Pane header `Hidden` | Toggle dotfiles in this pane |
-| Pane header `Git` | Toggle git status bar in this pane (only renders inside repos) |
-| Pane header `▶_` | Open terminal at this pane's path |
+| Pane header `Git` | Toggle git status bar in this pane (only renders inside repos; hidden in remote mode) |
+| Pane header `▶_` | Open terminal at this pane's path (local panes only) |
+| Pane header `🌐` | Connect this pane via SSH (user@host[:port], password / key / ssh-agent) |
+| Pane header `⏏` | Disconnect SSH and return this pane to local mode |
 | Pane header `←` / `↑` / `⟳` / `⚙` | Back (history) / parent folder / refresh / pane settings |
 | Breadcrumb segment | Jump to that ancestor path |
 | Double-click file | Open in default app |
@@ -232,10 +247,14 @@ finder-pw/
 ## Roadmap
 
 - [x] macOS port (`.dmg`, arm64) — v0.2.0
+- [x] Drag splitter between panes for free resizing — v0.3.0
+- [x] SSH/SFTP remote panes with bidirectional drag-drop copy — v0.4.0
+- [ ] SSH known_hosts verification (currently auto-accepts)
+- [ ] Saved SSH connections / favorites
+- [ ] Detailed copy progress (file count + bytes via Tauri events)
 - [ ] macOS code signing + notarization (smooth first-open)
 - [ ] Universal binary (Intel + Apple Silicon) for macOS
 - [ ] Homebrew tap for `brew install --cask pwfinder`
-- [ ] Drag splitter between panes for free resizing
 - [ ] Tabs inside each pane
 - [ ] In-pane file search / filter
 - [ ] Cut / paste (move) in addition to copy
@@ -249,7 +268,7 @@ finder-pw/
 
 ## Tech stack
 
-- **Backend**: Rust 1.75+, Tauri 2.x, `dirs` crate, `tauri-plugin-window-state`
+- **Backend**: Rust 1.85+, Tauri 2.x, `dirs`, `tauri-plugin-window-state`, `russh` + `russh-sftp` (SSH/SFTP), `tokio`
 - **Frontend**: React 18, TypeScript 5, Vite 5
 - **Bundled font**: [ProggyCrossed](https://github.com/bluescan/proggyfonts) (used for monospaced bits — paths, sizes, dates, git counts)
 

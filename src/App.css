@@ -267,6 +267,25 @@ button {
   z-index: 20;
   animation: drop-toast-in 0.2s ease-out;
 }
+.drop-toast.busy {
+  bottom: 50px;
+  background: #4a4a4a;
+}
+.ssh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--pane-color) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pane-color) 40%, transparent);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
 @keyframes drop-toast-in {
   from {
     opacity: 0;
@@ -594,38 +613,48 @@ button {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(20, 25, 35, 0.4);
+  background: rgba(20, 25, 35, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
 }
 .modal {
   background: white;
   border-radius: 10px;
   padding: 20px;
-  min-width: 360px;
+  min-width: 420px;
+  max-width: 540px;
+  color: var(--text);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 .modal h3 {
   margin: 0 0 16px 0;
+  color: var(--text);
 }
 .modal label {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-bottom: 12px;
-  font-size: 15px;
-  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
 }
-.modal input {
-  padding: 6px 8px;
+.modal input,
+.modal select {
+  padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: 5px;
-  font-size: 15px;
+  font-size: 14px;
   font-family: inherit;
+  background: white;
+  color: var(--text);
 }
-.modal input:focus {
+.modal input:focus,
+.modal select:focus {
   outline: none;
   border-color: var(--accent);
 }
@@ -634,6 +663,22 @@ button {
   color: var(--muted);
   margin-top: 2px;
   font-style: italic;
+  font-weight: 400;
+}
+.modal > p.hint {
+  margin: 0 0 12px 0;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 5px;
+  font-style: normal;
+}
+.modal .status-msg.error {
+  margin: 0 0 12px 0;
+  padding: 8px 10px;
+  background: color-mix(in srgb, #d44 12%, transparent);
+  color: #b22;
+  border-radius: 5px;
+  font-size: 13px;
 }
 .color-row {
   display: flex;

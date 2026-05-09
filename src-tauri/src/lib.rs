@@ -1,3 +1,5 @@
+mod ssh;
+
 use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -62,17 +64,57 @@ fn get_parent_dir(path: String) -> Option<String> {
         .map(|p| p.to_string_lossy().to_string())
 }
 
+pub fn open_with_smart_opener(path: &Path) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg(path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let ext = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .map(|s| s.to_lowercase());
+        let is_web = matches!(
+            ext.as_deref(),
+            Some("html") | Some("htm") | Some("xhtml") | Some("pdf") | Some("svg")
+        );
+        if is_web {
+            if let Ok(browser) = std::env::var("BROWSER") {
+                if !browser.is_empty()
+                    && Command::new(&browser).arg(path).spawn().is_ok()
+                {
+                    return Ok(());
+                }
+            }
+            for bin in [
+                "x-www-browser",
+                "sensible-browser",
+                "firefox",
+                "google-chrome",
+                "chromium",
+                "chromium-browser",
+            ] {
+                if Command::new(bin).arg(path).spawn().is_ok() {
+                    return Ok(());
+                }
+            }
+        }
+        Command::new("xdg-open")
+            .arg(path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
+}
+
 #[tauri::command]
 fn open_file(path: String) -> Result<(), String> {
-    #[cfg(target_os = "macos")]
-    let opener = "open";
-    #[cfg(not(target_os = "macos"))]
-    let opener = "xdg-open";
-    Command::new(opener)
-        .arg(&path)
-        .spawn()
-        .map_err(|e| e.to_string())?;
-    Ok(())
+    open_with_smart_opener(Path::new(&path))
 }
 
 fn unique_target(dst_dir: &Path, name: &str) -> PathBuf {
@@ -333,6 +375,7 @@ fn copy_path(src: String, dst_dir: String) -> Result<String, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .manage(ssh::SshState::default())
         .invoke_handler(tauri::generate_handler![
             list_directory,
             get_home_dir,
@@ -343,7 +386,19 @@ pub fn run() {
             delete_path,
             create_dir,
             open_terminal,
-            git_status
+            git_status,
+            ssh::ssh_connect,
+            ssh::ssh_cancel_connect,
+            ssh::ssh_disconnect,
+            ssh::ssh_list_directory,
+            ssh::ssh_create_dir,
+            ssh::ssh_rename,
+            ssh::ssh_delete,
+            ssh::ssh_get_parent_dir,
+            ssh::ssh_open_file,
+            ssh::ssh_copy_to_remote,
+            ssh::ssh_copy_from_remote,
+            ssh::ssh_copy_remote_to_remote
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

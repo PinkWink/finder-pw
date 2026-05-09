@@ -9,7 +9,17 @@ import { invoke } from "@tauri-apps/api/core";
 import { FileEntry, GitStatus, PaneConfig, SortKey, SortDir } from "../types";
 import FileList from "./FileList";
 import PaneSettings from "./PaneSettings";
+import SshConnectModal from "./SshConnectModal";
 import ContextMenu, { ContextMenuItem } from "./ContextMenu";
+import {
+  copyOne,
+  deletePath,
+  getParentDir,
+  listDir,
+  openEntry,
+  renamePath,
+  sshDisconnect,
+} from "../fsApi";
 
 interface Props {
   config: PaneConfig;
@@ -40,6 +50,13 @@ function basename(path: string): string {
 
 const DRAG_MIME = "application/finder-paths";
 
+interface DragPayload {
+  v: 1;
+  paneId: string;
+  sessionId: string | null;
+  paths: string[];
+}
+
 export default function Pane({
   config,
   isActive,
@@ -57,21 +74,29 @@ export default function Pane({
   const [git, setGit] = useState<GitStatus | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [anchor, setAnchor] = useState<string | null>(null);
+  const [showSsh, setShowSsh] = useState(false);
+  const [busyMsg, setBusyMsg] = useState<string | null>(null);
 
-  const loadDir = useCallback(async (path: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const list = await invoke<FileEntry[]>("list_directory", { path });
-      setEntries(list);
-    } catch (e: unknown) {
-      const msg = typeof e === "string" ? e : (e as Error)?.message ?? "Unknown error";
-      setError(msg);
-      setEntries([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const sessionId = config.remote?.sessionId ?? null;
+  const isRemote = sessionId !== null;
+
+  const loadDir = useCallback(
+    async (path: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const list = await listDir(sessionId, path);
+        setEntries(list);
+      } catch (e: unknown) {
+        const msg = typeof e === "string" ? e : (e as Error)?.message ?? "Unknown error";
+        setError(msg);
+        setEntries([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [sessionId]
+  );
 
   useEffect(() => {
     loadDir(config.path);
@@ -80,7 +105,7 @@ export default function Pane({
   }, [config.path, loadDir]);
 
   useEffect(() => {
-    if (!config.showGit) {
+    if (!config.showGit || isRemote) {
       setGit(null);
       return;
     }
@@ -95,7 +120,7 @@ export default function Pane({
     return () => {
       cancelled = true;
     };
-  }, [config.path, config.showGit, entries]);
+  }, [config.path, config.showGit, entries, isRemote]);
 
   const visibleEntries = useMemo(
     () =>
@@ -139,7 +164,7 @@ export default function Pane({
 
   const goUp = async () => {
     try {
-      const parent = await invoke<string | null>("get_parent_dir", { path: config.path });
+      const parent = await getParentDir(sessionId, config.path);
       if (parent) onUpdate({ path: parent });
     } catch {
       /* noop */
@@ -151,7 +176,7 @@ export default function Pane({
       onUpdate({ path: entry.path });
     } else {
       try {
-        await invoke("open_file", { path: entry.path });
+        await openEntry(sessionId, entry.path);
       } catch (e) {
         console.error(e);
       }
@@ -204,7 +229,7 @@ export default function Pane({
     let lastError: string | null = null;
     for (const p of paths) {
       try {
-        await invoke("delete_path", { path: p });
+        await deletePath(sessionId, p);
         deleted++;
       } catch (e) {
         lastError = typeof e === "string" ? e : "Delete failed";
@@ -215,7 +240,7 @@ export default function Pane({
     setSelected(new Set());
     setAnchor(null);
     loadDir(config.path);
-  }, [selected, loadDir, config.path, showToast]);
+  }, [selected, loadDir, config.path, sessionId, showToast]);
 
   // Keyboard shortcuts on the active pane
   useEffect(() => {
@@ -273,28 +298,43 @@ export default function Pane({
     setIsDragOver(false);
     const data = ev.dataTransfer.getData(DRAG_MIME);
     if (!data) return;
-    let paths: string[];
+    let payload: DragPayload;
     try {
-      paths = JSON.parse(data);
+      payload = JSON.parse(data);
+      if (!payload || payload.v !== 1 || !Array.isArray(payload.paths)) return;
     } catch {
       return;
     }
+    const sameSession =
+      (payload.sessionId ?? null) === (config.remote?.sessionId ?? null);
     let copied = 0;
     let lastError: string | null = null;
     let lastName = "";
-    for (const src of paths) {
-      const srcParent = src.replace(/\/[^/]+$/, "") || "/";
-      if (srcParent === config.path) continue;
-      try {
-        const created = await invoke<string>("copy_path", {
-          src,
-          dst_dir: config.path,
-        });
-        copied++;
-        lastName = created.split("/").pop() ?? created;
-      } catch (e: unknown) {
-        lastError = typeof e === "string" ? e : (e as Error)?.message ?? "Copy failed";
+    setBusyMsg(
+      payload.paths.length === 1
+        ? `Copying ${basename(payload.paths[0])}…`
+        : `Copying ${payload.paths.length} items…`
+    );
+    try {
+      for (const src of payload.paths) {
+        if (sameSession) {
+          const srcParent = src.replace(/\/[^/]+$/, "") || "/";
+          if (srcParent === config.path) continue;
+        }
+        try {
+          const created = await copyOne(
+            { sessionId: payload.sessionId, path: src },
+            { sessionId, path: config.path }
+          );
+          copied++;
+          lastName = created.split("/").pop() ?? created;
+        } catch (e: unknown) {
+          lastError =
+            typeof e === "string" ? e : (e as Error)?.message ?? "Copy failed";
+        }
       }
+    } finally {
+      setBusyMsg(null);
     }
     if (copied > 0) {
       showToast(
@@ -314,18 +354,67 @@ export default function Pane({
       setSelected(new Set([entry.path]));
       setAnchor(entry.path);
     }
-    ev.dataTransfer.setData(DRAG_MIME, JSON.stringify(toDrag));
+    const payload: DragPayload = {
+      v: 1,
+      paneId: config.id,
+      sessionId: config.remote?.sessionId ?? null,
+      paths: toDrag,
+    };
+    ev.dataTransfer.setData(DRAG_MIME, JSON.stringify(payload));
     ev.dataTransfer.setData("text/plain", toDrag.join("\n"));
     ev.dataTransfer.effectAllowed = "copy";
   };
 
   const openTerminal = async () => {
+    if (isRemote) return;
     try {
       await invoke("open_terminal", { path: config.path });
     } catch (e) {
       const msg = typeof e === "string" ? e : "Failed to open terminal";
       setError(msg);
     }
+  };
+
+  const handleConnected = async (result: {
+    sessionId: string;
+    homeDir: string;
+    user: string;
+    host: string;
+    port: number;
+  }) => {
+    setShowSsh(false);
+    onUpdate({
+      remote: {
+        sessionId: result.sessionId,
+        user: result.user,
+        host: result.host,
+        port: result.port,
+        homeDir: result.homeDir,
+      },
+      path: result.homeDir,
+      showGit: false,
+    });
+    showToast(`Connected: ${result.user}@${result.host}`);
+  };
+
+  const handleDisconnect = async () => {
+    if (!config.remote) return;
+    const sessionId = config.remote.sessionId;
+    setBusyMsg("Disconnecting…");
+    try {
+      await sshDisconnect(sessionId);
+    } catch (e) {
+      console.error(e);
+    }
+    let home = "/";
+    try {
+      home = await invoke<string>("get_home_dir");
+    } catch {
+      /* noop */
+    }
+    onUpdate({ remote: undefined, path: home });
+    setBusyMsg(null);
+    showToast("Disconnected");
   };
 
   const buildContextMenuItems = (): ContextMenuItem[] => {
@@ -355,10 +444,7 @@ export default function Pane({
           const newName = window.prompt("New name:", singleEntry.name);
           if (!newName || newName === singleEntry.name) return;
           try {
-            await invoke("rename_path", {
-              path: singleEntry.path,
-              new_name: newName,
-            });
+            await renamePath(sessionId, singleEntry.path, newName);
             showToast(`Renamed to ${newName}`);
             loadDir(config.path);
           } catch (e) {
@@ -408,6 +494,14 @@ export default function Pane({
         <div className="pane-name">
           {config.name?.trim() || basename(config.path)}
         </div>
+        {config.remote && (
+          <span
+            className="ssh-badge"
+            title={`SSH ${config.remote.user}@${config.remote.host}:${config.remote.port}`}
+          >
+            🌐 {config.remote.user}@{config.remote.host}
+          </span>
+        )}
         {selected.size > 0 && (
           <span className="selection-count" title="Selected items">
             {selected.size}
@@ -421,21 +515,42 @@ export default function Pane({
           />
           <span>Hidden</span>
         </label>
-        <label className="hidden-toggle" title="Show git status">
-          <input
-            type="checkbox"
-            checked={config.showGit ?? false}
-            onChange={(e) => onUpdate({ showGit: e.target.checked })}
-          />
-          <span>Git</span>
-        </label>
-        <button
-          className="icon-btn"
-          onClick={openTerminal}
-          title="Open terminal here"
-        >
-          ▶_
-        </button>
+        {!isRemote && (
+          <label className="hidden-toggle" title="Show git status">
+            <input
+              type="checkbox"
+              checked={config.showGit ?? false}
+              onChange={(e) => onUpdate({ showGit: e.target.checked })}
+            />
+            <span>Git</span>
+          </label>
+        )}
+        {!isRemote && (
+          <button
+            className="icon-btn"
+            onClick={openTerminal}
+            title="Open terminal here"
+          >
+            ▶_
+          </button>
+        )}
+        {isRemote ? (
+          <button
+            className="icon-btn"
+            onClick={handleDisconnect}
+            title="Disconnect SSH"
+          >
+            ⏏
+          </button>
+        ) : (
+          <button
+            className="icon-btn"
+            onClick={() => setShowSsh(true)}
+            title="Connect via SSH"
+          >
+            🌐
+          </button>
+        )}
         {onBack && (
           <button className="icon-btn" onClick={onBack} title="Back">
             ←
@@ -530,6 +645,7 @@ export default function Pane({
         )}
       </div>
       {dropMsg && <div className="drop-toast">{dropMsg}</div>}
+      {busyMsg && <div className="drop-toast busy">{busyMsg}</div>}
       {ctxMenu && (
         <ContextMenu
           x={ctxMenu.x}
@@ -546,6 +662,12 @@ export default function Pane({
             onUpdate(patch);
             setShowSettings(false);
           }}
+        />
+      )}
+      {showSsh && (
+        <SshConnectModal
+          onClose={() => setShowSsh(false)}
+          onConnected={handleConnected}
         />
       )}
     </div>

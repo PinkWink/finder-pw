@@ -9,6 +9,14 @@ export interface FileEntry {
 export type SortKey = "name" | "size" | "modified";
 export type SortDir = "asc" | "desc";
 
+export interface RemoteConfig {
+  sessionId: string;
+  user: string;
+  host: string;
+  port: number;
+  homeDir: string;
+}
+
 export interface PaneConfig {
   id: string;
   name: string;
@@ -19,6 +27,8 @@ export interface PaneConfig {
   history?: string[];
   sortKey?: SortKey;
   sortDir?: SortDir;
+  remote?: RemoteConfig;
+  lastLocalPath?: string;
 }
 
 export interface GitStatus {

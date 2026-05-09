@@ -15,11 +15,16 @@ function loadPanes(home: string): PaneConfig[] {
   if (saved) {
     try {
       const parsed: PaneConfig[] = JSON.parse(saved);
-      return parsed.map((p) => ({
-        ...p,
-        name: STALE_DEFAULT.test(p.name) ? "" : p.name,
-        history: p.history ?? [],
-      }));
+      return parsed.map((p) => {
+        const fallbackPath = p.lastLocalPath ?? home;
+        return {
+          ...p,
+          name: STALE_DEFAULT.test(p.name) ? "" : p.name,
+          history: p.history ?? [],
+          remote: undefined,
+          path: p.remote ? fallbackPath : p.path,
+        };
+      });
     } catch {}
   }
   return Array.from({ length: 4 }, (_, i) => ({
@@ -84,7 +89,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (ready) localStorage.setItem("finder-panes", JSON.stringify(panes));
+    if (ready) {
+      const sanitized = panes.map((p) => {
+        const { remote: _r, ...rest } = p;
+        return rest;
+      });
+      localStorage.setItem("finder-panes", JSON.stringify(sanitized));
+    }
   }, [panes, ready]);
 
   useEffect(() => {
@@ -110,7 +121,11 @@ export default function App() {
             HISTORY_LIMIT
           );
         }
-        return { ...pane, ...patch, history };
+        const merged: PaneConfig = { ...pane, ...patch, history };
+        if (!merged.remote && patch.path !== undefined) {
+          merged.lastLocalPath = patch.path;
+        }
+        return merged;
       })
     );
   }
@@ -143,7 +158,7 @@ export default function App() {
         onToggleTree={() => setShowTree((v) => !v)}
       />
       <div className="main">
-        {showTree && activePane && (
+        {showTree && activePane && !activePane.remote && (
           <TreeSidebar
             activePath={activePane.path}
             homeDir={home}
