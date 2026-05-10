@@ -9,30 +9,30 @@ Version: 1.0
 Architectures: amd64 arm64
 Components: main
 Description: PWFinder file explorer apt repository
-Date: Sat, 09 May 2026 02:00:57 +0000
+Date: Sun, 10 May 2026 09:15:24 +0000
 MD5Sum:
- 9a0dc67446c4186e8c6954b87a40e38d             6595 main/binary-amd64/Packages
- a4862a3567a0d7348630b4b33c00b900             1344 main/binary-amd64/Packages.gz
- 51bcb6e988e251d821f71826be9a0d1c             4123 main/binary-arm64/Packages
- 6921276c2075c7747854e3f9b247473a             1008 main/binary-arm64/Packages.gz
+ d12b7faca9d7d936253344fdb0c9436d             7420 main/binary-amd64/Packages
+ 7a46c43105a5c41f5b9012dcca23e29e             1450 main/binary-amd64/Packages.gz
+ 372f50ceba55ebf686d64ab7771644a6             4948 main/binary-arm64/Packages
+ fdb1ab29c2bf513f51a49a1780aff7e3             1116 main/binary-arm64/Packages.gz
 SHA256:
- eeebd140c1d56b005b06426e87c3d24382e82f5a31a51508ebf441a639fe5c60             6595 main/binary-amd64/Packages
- d390258092062d035cc06e43652cf9a6d96145c7196d55e8bf83da7f45a84d0a             1344 main/binary-amd64/Packages.gz
- 2b0368ece5ca0042084e65ce2504b050d335e7a5bb5cdfdcbdefd27d4eef28e2             4123 main/binary-arm64/Packages
- 5788650e9f759f3583abe24db6f074baa0bbba7b95c16a7b7eac63a24162d5dc             1008 main/binary-arm64/Packages.gz
+ 22c3433290adbab88365e83bc765d288352afbf7df3c2bfd35a5fe36afe83e8c             7420 main/binary-amd64/Packages
+ 31394657dc9920515040ef63d4d8708b0ebb409ba73e5f571942e1b0db6d983e             1450 main/binary-amd64/Packages.gz
+ 1afc11f79586f38ee7662858786b690e599abf5fe5de274a312d63d64a83b304             4948 main/binary-arm64/Packages
+ 295865785999234a21d8a8cf894182e6e05d96572ed0d1db3ccf478a49a32b3f             1116 main/binary-arm64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmn+lVkACgkQNBFjd6+C
-K0iUqhAAwUW1JMFTdXEkVinlBz2Q1TLzp9FRXXBlSYManuqjfrZV3A925iaoNcIa
-/qlD9yg3YdWP7778/sfLnZU4GtHefd0flYSdC7YxG6m03sAmeMZgWLc1ngicmxhm
-lGKv+zIgvUdwVl6m1Fl0LH41WUsu/3CPwat0OOiDHzURzK65AEW66NeOozne3jbq
-xk9KlWJlDXxgwAzt0jZ5nb5iLm993OHw4y5vfYnhpspyqlIgZgQWw0xa9dRw0FDM
-FQmi+oqfPt+/kdCYi70Ka+2e2gkUBSwJe+jcyeKH2dD9ETJ+WTNULK/YmNuyT2vH
-saUvEYq4RmKRS42WHLS5g9nQsEyLfhGxSysxxrsAjyBGKJjLWTUj9vFjz2oNTF4k
-vTNecmVp0qNkT/PwQ1a5+3tVKWtadoMTnBI+4TOppuI3MGMAKWGEWVTavQcRKvHe
-5IrJolHvZMGiyUdqYFYRlCphGoT+r85GzqWMbkTu460SURUOykenvPCmTaagsmTq
-MDpdHWflYOgoKs7h4ecgppIr0NDSB+x27pvUPsR3lBq+hnE0luTUGe5xGJ+xZfD7
-MTijby0RqVeYpzPCQThPWLD05kxydtXpOQ+OmEZS7P5VVO8oxWGZFRhgANakaeKT
-eLIfIluBxXCy8SAbefBFdD9glIYEsKBXs7AxLefEIsBxOWWTGiI=
-=MbVM
+iQIzBAEBCgAdFiEEb4jD/zo2On3CiKG6NBFjd6+CK0gFAmoATKwACgkQNBFjd6+C
+K0iAmBAAvDU5xVnyQMD31Jq+METVfgUsmfaBaXo+raTCM212NRjd0RPk0Gmtv8Hw
+qzDZqreu4MOI3RDvqkwgpbioLnR8d8ZiYzivGMyepXbBPGbC14wRMqz44so2RtzT
+SyvM9NN0wwx3k18CJXmFw46k/8TF6VQ6mCFPA9pb0jSqIRXm2AzwImXasGE825tb
+Gllt7KUsz/nZ31eFciOmr/g0TwLao6d3Q2vob5AnlHyPpoHPcVknZ0BOrLNjjdtt
+HHAyJsPEQgTwve+ItGZ9n+JIfrT8YhPrSKZ5v++3mrEFIr287sYyNhmcHlWn/7RM
+mmZpLGMNJIzILC1NlCJ0ZxBIvfGw6wrtowTRJuERiE13xbfRxC6a9Rnc9Ql/R5jc
+TSCQOH5EPOTwfRpT8/OoKac5SGkk8hr1UfIdKGu+WswL5g2eJZLb4Y2F5yHnhm74
+ykldDPyTmB/MAjiPaDRrkPmcrgH1DSskxHED8ZAKkA0Kn3cYGZ0gCKXVYFXX8n7Y
+ZIrPUI9U3nRkDYHa7VX+FaqMhZ8C2RFz+Jns79odOKW4uoIKRBwo5q9/I9YDPPii
+u4iPMj1N4sZAUIO27Zr5y+MfRQLrMUBgdzbc0gKv+7EkVU3rIWQfO4hjqhBsWdzK
+ywXi5CdYsbMKFJoEr34l6QUj9gXMU3YguSNhQRA6B7ztSYI5QO8=
+=m33x
 -----END PGP SIGNATURE-----
