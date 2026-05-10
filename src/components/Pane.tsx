@@ -2,9 +2,12 @@ import {
   Fragment,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { FileEntry, GitStatus, PaneConfig, SortKey, SortDir } from "../types";
 import FileList from "./FileList";
@@ -76,6 +79,7 @@ export default function Pane({
   const [anchor, setAnchor] = useState<string | null>(null);
   const [showSsh, setShowSsh] = useState(false);
   const [busyMsg, setBusyMsg] = useState<string | null>(null);
+  const [renameTarget, setRenameTarget] = useState<FileEntry | null>(null);
 
   const sessionId = config.remote?.sessionId ?? null;
   const isRemote = sessionId !== null;
@@ -375,6 +379,25 @@ export default function Pane({
     }
   };
 
+  const submitRename = async (newName: string) => {
+    const target = renameTarget;
+    if (!target) return;
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed === target.name) {
+      setRenameTarget(null);
+      return;
+    }
+    setRenameTarget(null);
+    try {
+      await renamePath(sessionId, target.path, trimmed);
+      showToast(`Renamed to ${trimmed}`);
+      loadDir(config.path);
+    } catch (e) {
+      const msg = typeof e === "string" ? e : "Rename failed";
+      setError(msg);
+    }
+  };
+
   const handleConnected = async (result: {
     sessionId: string;
     homeDir: string;
@@ -439,18 +462,9 @@ export default function Pane({
       {
         label: "Rename",
         disabled: isMulti || !singleEntry,
-        onClick: async () => {
+        onClick: () => {
           if (!singleEntry) return;
-          const newName = window.prompt("New name:", singleEntry.name);
-          if (!newName || newName === singleEntry.name) return;
-          try {
-            await renamePath(sessionId, singleEntry.path, newName);
-            showToast(`Renamed to ${newName}`);
-            loadDir(config.path);
-          } catch (e) {
-            const msg = typeof e === "string" ? e : "Rename failed";
-            setError(msg);
-          }
+          setRenameTarget(singleEntry);
         },
       },
       {
@@ -606,21 +620,18 @@ export default function Pane({
           )}
         </div>
       )}
-      <div className="pane-path" title={config.path}>
-        {buildBreadcrumbs(config.path).map((bc, i) => (
-          <Fragment key={bc.path + i}>
-            {i > 0 && bc.label !== "/" && <span className="bc-sep">/</span>}
-            <button
-              type="button"
-              className="bc-seg"
-              onClick={() => onUpdate({ path: bc.path })}
-              title={bc.path}
-            >
-              {bc.label}
-            </button>
-          </Fragment>
-        ))}
-      </div>
+      <Breadcrumbs
+        path={config.path}
+        onNavigate={(p) => onUpdate({ path: p })}
+        onCopy={async () => {
+          try {
+            await navigator.clipboard.writeText(config.path);
+            showToast("Path copied");
+          } catch {
+            showToast("Clipboard unavailable");
+          }
+        }}
+      />
       <div className="pane-body" onClick={clearSelection}>
         {loading && <div className="status-msg">Loading...</div>}
         {error && <div className="status-msg error">{error}</div>}
@@ -670,6 +681,150 @@ export default function Pane({
           onConnected={handleConnected}
         />
       )}
+      {renameTarget && (
+        <RenameModal
+          initial={renameTarget.name}
+          isDir={renameTarget.is_dir}
+          onCancel={() => setRenameTarget(null)}
+          onSubmit={submitRename}
+        />
+      )}
     </div>
+  );
+}
+
+function Breadcrumbs({
+  path,
+  onNavigate,
+  onCopy,
+}: {
+  path: string;
+  onNavigate: (p: string) => void;
+  onCopy: () => void;
+}) {
+  const segs = useMemo(() => buildBreadcrumbs(path), [path]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [hidden, setHidden] = useState(0);
+
+  useLayoutEffect(() => {
+    setHidden(0);
+  }, [path]);
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setHidden(0));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (el.scrollWidth > el.clientWidth + 1 && hidden < segs.length - 1) {
+      setHidden((c) => c + 1);
+    }
+  });
+
+  const visible = segs.slice(hidden);
+  const collapsedTarget = hidden > 0 ? segs[hidden - 1] : null;
+
+  return (
+    <div
+      ref={containerRef}
+      className="pane-path"
+      title={path}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onCopy();
+      }}
+    >
+      {collapsedTarget && (
+        <>
+          <button
+            type="button"
+            className="bc-seg bc-ellipsis"
+            onClick={() => onNavigate(collapsedTarget.path)}
+            title={collapsedTarget.path}
+          >
+            …
+          </button>
+          <span className="bc-sep">/</span>
+        </>
+      )}
+      {visible.map((bc, i) => (
+        <Fragment key={bc.path + i}>
+          {i > 0 && bc.label !== "/" && <span className="bc-sep">/</span>}
+          <button
+            type="button"
+            className="bc-seg"
+            onClick={() => onNavigate(bc.path)}
+            title={bc.path}
+          >
+            {bc.label}
+          </button>
+        </Fragment>
+      ))}
+    </div>
+  );
+}
+
+function RenameModal({
+  initial,
+  isDir,
+  onCancel,
+  onSubmit,
+}: {
+  initial: string;
+  isDir: boolean;
+  onCancel: () => void;
+  onSubmit: (name: string) => void;
+}) {
+  const [value, setValue] = useState(initial);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.focus();
+    if (isDir) {
+      el.select();
+    } else {
+      const dot = initial.lastIndexOf(".");
+      if (dot > 0) el.setSelectionRange(0, dot);
+      else el.select();
+    }
+  }, [initial, isDir]);
+
+  return createPortal(
+    <div className="modal-backdrop" onClick={onCancel}>
+      <form
+        className="modal"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit(value);
+        }}
+      >
+        <h3>Rename</h3>
+        <label>
+          New name
+          <input
+            ref={inputRef}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        </label>
+        <div className="modal-buttons">
+          <button type="button" onClick={onCancel}>
+            Cancel
+          </button>
+          <button type="submit" className="primary">
+            Rename
+          </button>
+        </div>
+      </form>
+    </div>,
+    document.body
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { PaneConfig } from "../types";
 
 interface Props {
@@ -29,7 +30,7 @@ export default function PaneSettings({ config, onClose, onSave }: Props) {
     return parts[parts.length - 1] || "/";
   })();
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h3>Pane Settings</h3>
@@ -78,6 +79,7 @@ export default function PaneSettings({ config, onClose, onSave }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

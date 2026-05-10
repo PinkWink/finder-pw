@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export interface ContextMenuItem {
   label: string;
@@ -44,7 +45,7 @@ export default function ContextMenu({ x, y, items, onClose }: Props) {
     ref.current.style.top = `${Math.max(4, adjustedY)}px`;
   }, [x, y]);
 
-  return (
+  return createPortal(
     <div ref={ref} className="ctx-menu" style={{ left: x, top: y }}>
       {items.map((item, i) =>
         item.separator ? (
@@ -65,6 +66,7 @@ export default function ContextMenu({ x, y, items, onClose }: Props) {
           </button>
         )
       )}
-    </div>
+    </div>,
+    document.body
   );
 }

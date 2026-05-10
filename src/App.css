@@ -367,20 +367,15 @@ button {
   color: var(--muted);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   background: var(--bg);
   display: flex;
   align-items: center;
   gap: 2px;
-  scrollbar-width: thin;
+  min-width: 0;
 }
-.pane-path::-webkit-scrollbar {
-  height: 4px;
-}
-.pane-path::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
+.bc-ellipsis {
+  font-weight: 600;
 }
 .bc-seg {
   background: transparent;
