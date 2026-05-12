@@ -266,6 +266,11 @@ finder-pw/
 
 ---
 
+## YOUTUBE Link
+https://www.youtube.com/watch?v=1sx66-85bYk
+
+---
+
 ## Tech stack
 
 - **Backend**: Rust 1.85+, Tauri 2.x, `dirs`, `tauri-plugin-window-state`, `russh` + `russh-sftp` (SSH/SFTP), `tokio`
